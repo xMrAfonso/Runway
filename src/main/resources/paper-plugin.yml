@@ -1,0 +1,20 @@
+name: Runway
+version: '${version}'
+main: me.mrafonso.runway.Runway
+api-version: '1.20'
+author: MrAfonso
+loader: me.mrafonso.runway.RunwayLoader
+dependencies:
+  server:
+    ProtocolLib:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    MiniPlaceholders:
+      load: BEFORE
+      required: false
+      join-classpath: true
