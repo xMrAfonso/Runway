@@ -22,15 +22,18 @@ public final class Runway extends JavaPlugin {
         if (getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
             getLogger().log(Level.SEVERE, "ProtocolLib not found! Disabling plugin...");
             getServer().getPluginManager().disablePlugin(this);
+            return;
         }
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") == null) {
             configManager.config().placeholderHook().placeholderAPI(false);
             getLogger().log(Level.WARNING, "PlaceholderAPI not found! Disabling PlaceholderAPI support...");
+            return;
         }
 
         if (getServer().getPluginManager().getPlugin("MiniPlaceholder") == null) {
             configManager.config().placeholderHook().miniPlaceholders(false);
             getLogger().log(Level.WARNING, "MiniPlaceholder not found! Disabling MiniPlaceholder support...");
+            return;
         }
 
         ProcessHandler processHandler = new ProcessHandler(configManager);
@@ -46,7 +49,7 @@ public final class Runway extends JavaPlugin {
         protocolManager.addPacketListener(new ItemListener(this, processHandler, configManager));
 
         BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(this);
-        commandManager.registerCommand(new RunwayCommand(configManager));
+        commandManager.registerCommand(new RunwayCommand(configManager, processHandler));
     }
 
     @Override
