@@ -1,4 +1,5 @@
 name: Runway
+description: "Support MiniMessage formatting everywhere from anywhere."
 version: '${version}'
 main: me.mrafonso.runway.Runway
 api-version: '1.20'

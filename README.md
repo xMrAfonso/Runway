@@ -6,22 +6,24 @@ If enabled, PlaceholderAPI/MiniPlaceholders is also supported in messages parsed
 
 [![image](https://github.com/xMrAfonso/Runway/assets/44532605/e29ace3a-b660-40b9-9751-933b2d91288a)](https://google.com) ![image](https://github.com/xMrAfonso/Runway/assets/44532605/4b5b30dc-2117-48f8-bf74-a25a7c38285d)
 
-
 ## Installation
 ### Requirements
 **Server:**
-- Paper 1.20.4+ (or Forks)
+- [Paper 1.20.4+](https://papermc.io/downloads/paper) (or Forks)
 - Java 17
 
 **Plugins:**
-- ProtocolLib (Required)
-- PlaceholderAPI (Optional)
-- MiniPlaceholders (Optional)
+- [ProtocolLib 5.2.0+](https://ci.dmulloy2.net/job/ProtocolLib//lastBuild/) (Required)
+- [PlaceholderAPI](https://hangar.papermc.io/HelpChat/PlaceholderAPI) (Optional)
+- [MiniPlaceholders](https://hangar.papermc.io/MiniPlaceholders/MiniPlaceholders) (Optional)
   
 ### How to use
 By default, to allow MiniMessage formatting in your messages, you need to include the prefix `[mm]` inside the line, there is no specific requirement if it needs to be in the front, back or middle of the sentence.
 This can also be disabled in the *config.yml* which will make all incoming packets to be formatted using MiniMessage.
 
+**Commands:**
+- `/runway reload` - Reloads the plugin configuration.
+- `/runway parse <text>` - Parses the given text to MiniMessage.
 ## Support & Contact
 Feel free to open an issue if you find any issues. For feedback or further assistance, contact me via discord: `@mrafonso`
 

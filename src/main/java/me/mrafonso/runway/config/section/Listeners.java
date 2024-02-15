@@ -1,15 +1,22 @@
 package me.mrafonso.runway.config.section;
 
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 public class Listeners {
+    @Comment("Whether to parse system messages, also known as plugin messages. (default: true)")
     private boolean systemMessages = true;
+    @Comment("Whether to parse the MOTD. (default: true)")
     private boolean motd = true;
+    @Comment("Whether to parse the tablist. (default: true)")
     private boolean tablist = true;
+    @Comment("Whether to parse titles and subtitles. (default: true)")
     private boolean titles = true;
+    @Comment("Whether to parse scoreboards, which work using Teams. (default: true)")
     private boolean scoreboards = true;
     private Inventory inventory = new Inventory();
+    @Comment("Whether to parse items, including the item name and lore. (default: true)")
     private boolean items = true;
 
     public boolean systemMessages() {

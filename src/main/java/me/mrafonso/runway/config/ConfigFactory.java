@@ -1,6 +1,8 @@
 package me.mrafonso.runway.config;
 
 import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurationOptions;
+import org.spongepowered.configurate.loader.ConfigurationLoader;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
@@ -31,7 +33,7 @@ public class ConfigFactory {
 
             Path path = dataFolder.resolve(fileName);
 
-            YamlConfigurationLoader loader = loader(path);
+            ConfigurationLoader<CommentedConfigurationNode> loader = loader(path);
             CommentedConfigurationNode node = loader.load();
             T config = node.get(clazz);
 
