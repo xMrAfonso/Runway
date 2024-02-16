@@ -21,6 +21,8 @@ If enabled, PlaceholderAPI/MiniPlaceholders is also supported in messages parsed
 By default, to allow MiniMessage formatting in your messages, you need to include the prefix `[mm]` inside the line, there is no specific requirement if it needs to be in the front, back or middle of the sentence.
 This can also be disabled in the *config.yml* which will make all incoming packets to be formatted using MiniMessage.
 
+PlaceholderAPI/MiniPlaceholders support uses the prefix `[p]` to detect when it should parse placeholders. The same rules of MiniMessage formatting apply here.
+
 **Commands:**
 - `/runway reload` - Reloads the plugin configuration.
 - `/runway parse <text>` - Parses the given text to MiniMessage.
