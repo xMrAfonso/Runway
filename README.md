@@ -1,4 +1,4 @@
-# Runway
+![Main Logo](https://cdn.modrinth.com/data/cached_images/e4bcf9fa21266eef2674f7459f2ff1cd786012a1.png)
 
 Runway allows you to support MiniMessage formatting in messages, menus, titles, scoreboards, items, MOTD and Tablist from any plugin. The plugin works at the protocol-level and modifies incoming packets sent by plugins.
 
