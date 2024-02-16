@@ -15,8 +15,9 @@ public class RunwayLoader implements PluginLoader {
         MavenLibraryResolver resolver = new MavenLibraryResolver();
 
         resolver.addRepository(new RemoteRepository.Builder("triumph-repo", "default", "https://repo.triumphteam.dev/snapshots/").build());
+        resolver.addRepository(new RemoteRepository.Builder("jitpack-repo", "default", "https://jitpack.io").build());
 
-        resolver.addDependency(new Dependency(new DefaultArtifact("org.spongepowered:configurate-yaml:4.1.2"), null));
+        resolver.addDependency(new Dependency(new DefaultArtifact("com.github.simplix-softworks:simplixstorage:3.2.7"), null));
         resolver.addDependency(new Dependency(new DefaultArtifact("dev.triumphteam:triumph-cmd-bukkit:2.0.0-ALPHA-9"), null));
 
         classpathBuilder.addLibrary(resolver);

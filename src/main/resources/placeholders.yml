@@ -1,0 +1,4 @@
+# Custom placeholders to be used in Runway. These are static and will not change.
+# MiniMessage can be used in these placeholders.
+custom-placeholders:
+  server_name: RunwayMC

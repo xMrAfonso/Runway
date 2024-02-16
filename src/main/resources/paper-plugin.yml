@@ -5,6 +5,7 @@ main: me.mrafonso.runway.Runway
 api-version: '1.20'
 author: MrAfonso
 loader: me.mrafonso.runway.RunwayLoader
+folia-supported: true
 dependencies:
   server:
     ProtocolLib:

@@ -4,7 +4,6 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedServerPing;
-import me.mrafonso.runway.config.Config;
 import me.mrafonso.runway.config.ConfigManager;
 import me.mrafonso.runway.util.ProcessHandler;
 import org.bukkit.entity.Player;
@@ -17,7 +16,7 @@ public class ServerPingListener extends AbstractListener {
 
     @Override
     public void onPacketSending(PacketEvent e) {
-        if (!configManager.config().listeners().motd()) return;
+        if (!config.getOrDefault("listeners.motd", true)) return;
 
         PacketContainer packet = e.getPacket();
         Player player = e.getPlayer();

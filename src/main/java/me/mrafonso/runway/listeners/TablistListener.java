@@ -2,7 +2,6 @@ package me.mrafonso.runway.listeners;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketEvent;
-import me.mrafonso.runway.config.Config;
 import me.mrafonso.runway.config.ConfigManager;
 import me.mrafonso.runway.util.ProcessHandler;
 import org.bukkit.entity.Player;
@@ -15,7 +14,7 @@ public class TablistListener extends AbstractListener {
 
     @Override
     public void onPacketSending(PacketEvent e) {
-        if (configManager.config().listeners().tablist()) return;
+        if (config.getOrDefault("listeners.tablist", true)) return;
 
         Player player = e.getPlayer();
         for (int i = 0; i < e.getPacket().getChatComponents().size(); i++) {

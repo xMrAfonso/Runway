@@ -3,9 +3,7 @@ package me.mrafonso.runway.listeners;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import me.mrafonso.runway.config.Config;
 import me.mrafonso.runway.config.ConfigManager;
-import me.mrafonso.runway.config.section.Inventory;
 import me.mrafonso.runway.util.ProcessHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -21,14 +19,16 @@ public class InventoryListener extends AbstractListener {
 
     @Override
     public void onPacketSending(PacketEvent e) {
-        Inventory invConfig = configManager.config().listeners().inventory();
         PacketContainer packet = e.getPacket();
         Player player = e.getPlayer();
 
-        if (invConfig.title() && packet.getType() == PacketType.Play.Server.OPEN_WINDOW) {
+        boolean titles = config.getOrDefault("listeners.inventory.titles", true);
+        boolean items = config.getOrDefault("listeners.inventory.items", true);
+
+        if (titles && packet.getType() == PacketType.Play.Server.OPEN_WINDOW) {
             packet.getChatComponents().modify(0, component -> handler.processComponent(component, player));
 
-        } else if (invConfig.items() && packet.getType() == PacketType.Play.Server.WINDOW_ITEMS) {
+        } else if (items && packet.getType() == PacketType.Play.Server.WINDOW_ITEMS) {
             packet.getItemListModifier().modify(0, itemStacks -> {
                 for (ItemStack itemStack : itemStacks) {
                     ItemMeta itemMeta = itemStack.getItemMeta();

@@ -1,9 +1,9 @@
 package me.mrafonso.runway.util;
 
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
+import de.leonhard.storage.Config;
 import io.github.miniplaceholders.api.MiniPlaceholders;
 import me.clip.placeholderapi.PlaceholderAPI;
-import me.mrafonso.runway.config.Config;
 import me.mrafonso.runway.config.ConfigManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -24,59 +24,71 @@ import java.util.logging.Level;
 public class ProcessHandler {
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private final GsonComponentSerializer gsonSerializer = GsonComponentSerializer.gson();
-    private final ConfigManager configManager;
-    private TagResolver customPlaceholders;
     private final TextComponent noItalics = Component.empty().decoration(TextDecoration.ITALIC, false);
+    private final Config config;
+    private final Config placeholders;
+    private TagResolver placeholdersResolver;
 
     public ProcessHandler(ConfigManager configManager) {
-        this.configManager = configManager;
+        this.config = configManager.config();
+        this.placeholders = configManager.placeholders();
     }
 
     public void reloadPlaceholders() {
         TagResolver.Builder builder = TagResolver.builder();
-        for (String key : configManager.config().customPlaceholders().keySet()) {
-            @Subst("") String placeholder = key.replace(" ", "_").toLowerCase();
-            String value = configManager.config().customPlaceholders().get(key);
+
+        for (String key : placeholders.singleLayerKeySet("custom-placeholders")) {
+            @Subst("") String placeholder =  key.toLowerCase()
+                                                .replace(" ", "_")
+                                                .replace("-", "_");
+
+            String value = placeholders.getString("custom-placeholders." + key);
 
             builder.resolver(Placeholder.parsed(placeholder, value));
         }
-        customPlaceholders = builder.build();
+        placeholdersResolver = builder.build();
     }
 
     public Component processComponent(@Nullable Component component, @Nullable Player player) {
         if (component == null) return Component.empty();
-        Config config = configManager.config();
+
+        boolean requirePrefixMM = config.getOrDefault("require-prefix.minimessage", true);
+        boolean placeholderapi = config.getOrDefault("placeholder-hook.placeholderapi", false);
+        boolean miniPlaceholders = config.getOrDefault("placeholder-hook.miniplaceholders", false);
+        boolean requirePrefixP = config.getOrDefault("require-prefix.placeholders", true);
+        boolean ignoreLegacy = config.getOrDefault("ignore-legacy", false);
 
         String s = miniMessage.serialize(component);
         if (s.contains("§")) {
-            if (config.ignoreLegacy()) {
+            if (ignoreLegacy) {
                 s = s.replace("§r", "&");
             } else {
-                config.ignoreLegacy(true);
+                config.set("ignore-legacy", true);
                 Bukkit.getLogger().log(Level.WARNING, "Detected Legacy colors! Runway is now ignoring legacy colors. \n" +
                                                       "To avoid receiving this message again, disable legacy colors in the config.");
             }
         }
 
-        if (config.requirePrefix() && !s.contains("[mm]")) return component;
+        if (requirePrefixMM && !s.contains("[mm]")) return component;
 
         s = s.replace("[mm]", "");
         s = s.replace("\\<", "<");
 
-        if (config.placeholderHook().placeholderAPI() && player != null) s = PlaceholderAPI.setPlaceholders(player, s);
+        if (player != null && (miniPlaceholders || placeholderapi)) {
+            if (requirePrefixP && !s.contains("[p]")) {
+                return miniMessage.deserialize(s, placeholdersResolver);
+            }
 
-        Component c;
-
-        if (player != null && config.placeholderHook().miniPlaceholders()) {
-            TagResolver playerResolver = MiniPlaceholders.getAudienceGlobalPlaceholders(player);
-            TagResolver resolver = TagResolver.builder().resolvers(playerResolver, customPlaceholders).build();
-            c = miniMessage.deserialize(s, resolver);
-        } else {
-            c = miniMessage.deserialize(s, customPlaceholders);
+            s = s.replace("[p]", "");
+            if (placeholderapi) s = PlaceholderAPI.setPlaceholders(player, s);
+            TagResolver resolver = placeholdersResolver;
+            if (miniPlaceholders) {
+                TagResolver playerResolver = MiniPlaceholders.getAudienceGlobalPlaceholders(player);
+                resolver = TagResolver.builder().resolvers(playerResolver, placeholdersResolver).build();
+            }
+            return miniMessage.deserialize(s, resolver);
         }
-
-        if (config.disableItalics()) c = noItalics.append(c);
-        return c;
+        return miniMessage.deserialize(s, placeholdersResolver);
     }
 
     public List<Component> processComponent(@Nullable List<Component> components, @Nullable Player player) {

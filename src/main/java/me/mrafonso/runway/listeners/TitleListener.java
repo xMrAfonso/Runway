@@ -3,7 +3,6 @@ package me.mrafonso.runway.listeners;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import me.mrafonso.runway.config.Config;
 import me.mrafonso.runway.config.ConfigManager;
 import me.mrafonso.runway.util.ProcessHandler;
 import org.bukkit.entity.Player;
@@ -17,7 +16,7 @@ public class TitleListener extends AbstractListener {
 
     @Override
     public void onPacketSending(PacketEvent e) {
-        if (!configManager.config().listeners().titles()) return;
+        if (!config.getOrDefault("listeners.titles", true)) return;
         PacketContainer packet = e.getPacket();
         Player player = e.getPlayer();
 

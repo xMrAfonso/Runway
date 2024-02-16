@@ -16,6 +16,10 @@ repositories {
         url = uri("https://oss.sonatype.org/content/groups/public/")
     }
     maven {
+        name = "jitpack-repo"
+        url = uri("https://jitpack.io")
+    }
+    maven {
         name = "dmulloy2-repo"
         url = uri("https://repo.dmulloy2.net/repository/public/")
     }
@@ -34,7 +38,7 @@ dependencies {
     compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
     compileOnly("me.clip:placeholderapi:2.11.5")
     compileOnly("io.github.miniplaceholders:miniplaceholders-kotlin-ext:2.2.3")
-    compileOnly("org.spongepowered:configurate-yaml:4.1.2")
+    compileOnly("com.github.simplix-softworks:simplixstorage:3.2.7")
     compileOnly("dev.triumphteam:triumph-cmd-bukkit:2.0.0-ALPHA-9")
 }
 

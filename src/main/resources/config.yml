@@ -1,0 +1,39 @@
+require-prefix:
+  # Is [mm] required for packets to be parsed by MiniMessage? (default: true)
+  minimessage: true
+  # Is [p] required for packets to be parsed by PlaceholderAPI/MiniPlaceholders? (default: true)
+  placeholders: true
+
+# Whether PlaceholderAPI or MiniPlaceholders should be hooked into Runway.
+# Both can be used at the same time.
+placeholder-hook:
+  placeholderapi: false
+  miniplaceholders: false
+
+# Whether to disable italics in names and lores of items. (default: true)
+disable-italics: true
+
+# Whether to ignore legacy colors in packets by replacing the legacy color code with &.
+# If this is set to false, Runway will log a warning and set this to true.
+ignore-legacy: false
+
+# Listeners for Runway to listen to.
+listeners:
+  # Whether to parse system messages, also known as plugin messages. (default: true)
+  system-messages: true
+  # Whether to parse the MOTD. (default: true)
+  motd: true
+  # Whether to parse the tablist. (default: true)
+  tablist: true
+  # Whether to parse titles and subtitles. (default: true)
+  titles: true
+  # Whether to parse scoreboards, which work using Teams. (default: true)
+  scoreboards: false
+  inventory:
+    # Whether to parse inventory titles. (default: true)
+    title: true
+    # Whether to parse inventory items, including the item name and lore. (default: true)
+    items: true
+  # Whether to parse items, including the item name and lore. (default: true)
+  items: true
+

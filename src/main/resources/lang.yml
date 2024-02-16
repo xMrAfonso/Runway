@@ -1,0 +1,8 @@
+# Messages to be used in Runway.
+reload-success: "<gradient:#0050ff:#0099ff>Runway » </gradient><white>Configuration was reloaded successfully!"
+parse-success: "<gradient:#0050ff:#0099ff>Runway » </gradient><white>Parsed text: <gray><text>"
+parse-fail: "<gradient:#0050ff:#0099ff>Runway » </gradient><white>Failed to parse the text. Make sure it can be parsed!"
+invalid-argument: "<gradient:#0050ff:#0099ff>Runway » </gradient><white>Invalid argument. Please use a valid argument!"
+unknown-command: "<gradient:#0050ff:#0099ff>Runway » </gradient><white>Sorry but that command is unknown. Please try again!"
+no-permission: "<gradient:#0050ff:#0099ff>Runway » </gradient><white>You do not have permission to use this command!"
+not-enough-arguments: "<gradient:#0050ff:#0099ff>Runway » </gradient><white>Not enough arguments. Please use a valid argument!"
