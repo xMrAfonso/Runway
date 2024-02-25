@@ -1,24 +1,25 @@
 package me.mrafonso.runway.listeners;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketEvent;
+import com.github.retrooper.packetevents.event.simple.PacketPlaySendEvent;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerListHeaderAndFooter;
 import me.mrafonso.runway.config.ConfigManager;
 import me.mrafonso.runway.util.ProcessHandler;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 public class TablistListener extends AbstractListener {
-    public TablistListener(Plugin plugin, ProcessHandler processHandler, ConfigManager configManager) {
-        super(plugin, processHandler, configManager, PacketType.Play.Server.PLAYER_LIST_HEADER_FOOTER);
+    public TablistListener(ProcessHandler processHandler, ConfigManager configManager) {
+        super(processHandler, configManager);
     }
 
     @Override
-    public void onPacketSending(PacketEvent e) {
-        if (config.getOrDefault("listeners.tablist", true)) return;
+    public void onPacketPlaySend(PacketPlaySendEvent e) {
+        if (config.getOrDefault("listeners.tablist", true) ||
+            e.getPacketType() == PacketType.Play.Server.PLAYER_LIST_HEADER_AND_FOOTER) return;
 
-        Player player = e.getPlayer();
-        for (int i = 0; i < e.getPacket().getChatComponents().size(); i++) {
-            e.getPacket().getChatComponents().modify(i, component -> handler.processComponent(component, player));
-        }
+        Player player = (Player) e.getPlayer();
+        WrapperPlayServerPlayerListHeaderAndFooter packet = new WrapperPlayServerPlayerListHeaderAndFooter(e);
+        packet.setFooter(handler.processComponent(packet.getFooter(), player));
+        packet.setHeader(handler.processComponent(packet.getHeader(), player));
     }
 }

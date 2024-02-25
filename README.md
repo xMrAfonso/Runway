@@ -4,16 +4,15 @@ Runway allows you to support MiniMessage formatting in messages, menus, titles, 
 
 If enabled, PlaceholderAPI/MiniPlaceholders is also supported in messages parsed by Runway. You also have the option to add your own static custom placeholders in MiniMessage.
 
-[![image](https://github.com/xMrAfonso/Runway/assets/44532605/e29ace3a-b660-40b9-9751-933b2d91288a)](https://google.com) ![image](https://github.com/xMrAfonso/Runway/assets/44532605/4b5b30dc-2117-48f8-bf74-a25a7c38285d)
+[![image](https://github.com/xMrAfonso/Runway/assets/44532605/e29ace3a-b660-40b9-9751-933b2d91288a)](https://hangar.papermc.io/Afonso/Runway/) [![image](https://github.com/xMrAfonso/Runway/assets/44532605/4b5b30dc-2117-48f8-bf74-a25a7c38285d)](https://modrinth.com/project/runway)
 
 ## Installation
 ### Requirements
 **Server:**
-- [Paper 1.20.4+](https://papermc.io/downloads/paper) (or Forks)
+- [Paper 1.20+ (latest recommended)](https://papermc.io/downloads/paper)
 - Java 17
 
 **Plugins:**
-- [ProtocolLib 5.2.0+](https://ci.dmulloy2.net/job/ProtocolLib//lastBuild/) (Required)
 - [PlaceholderAPI](https://hangar.papermc.io/HelpChat/PlaceholderAPI) (Optional)
 - [MiniPlaceholders](https://hangar.papermc.io/MiniPlaceholders/MiniPlaceholders) (Optional)
   

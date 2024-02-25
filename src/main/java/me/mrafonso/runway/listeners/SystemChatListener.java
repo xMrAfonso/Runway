@@ -1,21 +1,24 @@
 package me.mrafonso.runway.listeners;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketEvent;
+import com.github.retrooper.packetevents.event.simple.PacketPlaySendEvent;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSystemChatMessage;
 import me.mrafonso.runway.config.ConfigManager;
 import me.mrafonso.runway.util.ProcessHandler;
-import net.kyori.adventure.text.Component;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.entity.Player;
 
 public class SystemChatListener extends AbstractListener {
-    public SystemChatListener(Plugin plugin, ProcessHandler processHandler, ConfigManager configManager) {
-        super(plugin, processHandler, configManager, PacketType.Play.Server.SYSTEM_CHAT);
+    public SystemChatListener(ProcessHandler processHandler, ConfigManager configManager) {
+        super(processHandler, configManager);
     }
 
     @Override
-    public void onPacketSending(PacketEvent e) {
-        if (!config.getOrDefault("listeners.system-messages", true)) return;
+    public void onPacketPlaySend(PacketPlaySendEvent e) {
+        if (!config.getOrDefault("listeners.system-messages", true) ||
+            e.getPacketType() != PacketType.Play.Server.SYSTEM_CHAT_MESSAGE) return;
 
-        e.getPacket().getSpecificModifier(Component.class).modify(0, component -> handler.processComponent(component, e.getPlayer()));
+        Player player = (Player) e.getPlayer();
+        WrapperPlayServerSystemChatMessage packet = new WrapperPlayServerSystemChatMessage(e);
+        packet.setMessage(handler.processComponent(packet.getMessage(), player));
     }
 }

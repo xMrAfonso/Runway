@@ -1,8 +1,9 @@
 package me.mrafonso.runway.util;
 
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
+import com.github.retrooper.packetevents.protocol.item.ItemStack;
 import de.leonhard.storage.Config;
 import io.github.miniplaceholders.api.MiniPlaceholders;
+import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.mrafonso.runway.config.ConfigManager;
 import net.kyori.adventure.text.Component;
@@ -14,6 +15,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +26,7 @@ import java.util.logging.Level;
 public class ProcessHandler {
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private final GsonComponentSerializer gsonSerializer = GsonComponentSerializer.gson();
-    private final TextComponent noItalics = Component.empty().decoration(TextDecoration.ITALIC, false);
+    private final String noItalics = "<italic:false>";
     private final Config config;
     private final Config placeholders;
     private TagResolver placeholdersResolver;
@@ -57,6 +59,7 @@ public class ProcessHandler {
         boolean miniPlaceholders = config.getOrDefault("placeholder-hook.miniplaceholders", false);
         boolean requirePrefixP = config.getOrDefault("require-prefix.placeholders", true);
         boolean ignoreLegacy = config.getOrDefault("ignore-legacy", false);
+        boolean disableItalics = config.getOrDefault("disable-italics", true);
 
         String s = miniMessage.serialize(component);
         if (s.contains("§")) {
@@ -73,6 +76,8 @@ public class ProcessHandler {
 
         s = s.replace("[mm]", "");
         s = s.replace("\\<", "<");
+
+        if (disableItalics) s = noItalics + s;
 
         if (player != null && (miniPlaceholders || placeholderapi)) {
             if (requirePrefixP && !s.contains("[p]")) {
@@ -101,8 +106,26 @@ public class ProcessHandler {
         return componentList;
     }
 
-    public WrappedChatComponent processComponent(@Nullable WrappedChatComponent component, @Nullable Player player) {
-        if (component == null) return null;
-        return WrappedChatComponent.fromJson(gsonSerializer.serialize(processComponent(gsonSerializer.deserialize(component.getJson()), player)));
+    public ItemStack processItem(@Nullable ItemStack item, @Nullable Player player) {
+        if (item == null) return null;
+
+        org.bukkit.inventory.ItemStack bukkitItem = SpigotConversionUtil.toBukkitItemStack(item);
+        ItemMeta meta = bukkitItem.getItemMeta();
+        if (meta != null) {
+            if (meta.hasDisplayName()) meta.displayName(processComponent(meta.displayName(), player));
+            if (meta.hasLore()) meta.lore(processComponent(meta.lore(), player));
+            bukkitItem.setItemMeta(meta);
+        }
+        return SpigotConversionUtil.fromBukkitItemStack(bukkitItem);
+    }
+
+    public List<ItemStack> processItems(@Nullable List<ItemStack> items, @Nullable Player player) {
+        if (items == null) return new ArrayList<>();
+
+        List<ItemStack> itemList = new ArrayList<>();
+        for (ItemStack pItem : items) {
+            itemList.add(processItem(pItem, player));
+        }
+        return itemList;
     }
 }

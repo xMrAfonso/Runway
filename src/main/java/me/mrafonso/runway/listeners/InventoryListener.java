@@ -1,46 +1,36 @@
 package me.mrafonso.runway.listeners;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
+import com.github.retrooper.packetevents.event.simple.PacketPlaySendEvent;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerOpenWindow;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerWindowItems;
 import me.mrafonso.runway.config.ConfigManager;
 import me.mrafonso.runway.util.ProcessHandler;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 
 public class InventoryListener extends AbstractListener {
 
-    public InventoryListener(Plugin plugin, ProcessHandler processHandler, ConfigManager configManager) {
-        super(plugin, processHandler, configManager, PacketType.Play.Server.OPEN_WINDOW,
-                                                     PacketType.Play.Server.WINDOW_ITEMS);
+    public InventoryListener(ProcessHandler processHandler, ConfigManager configManager) {
+        super(processHandler, configManager);
     }
 
     @Override
-    public void onPacketSending(PacketEvent e) {
-        PacketContainer packet = e.getPacket();
-        Player player = e.getPlayer();
+    public void onPacketPlaySend(PacketPlaySendEvent e) {
+        PacketTypeCommon type = e.getPacketType();
+        if (type != PacketType.Play.Server.OPEN_WINDOW &&
+            type != PacketType.Play.Server.WINDOW_ITEMS) return;
 
+        Player player = (Player) e.getPlayer();
         boolean titles = config.getOrDefault("listeners.inventory.titles", true);
         boolean items = config.getOrDefault("listeners.inventory.items", true);
 
-        if (titles && packet.getType() == PacketType.Play.Server.OPEN_WINDOW) {
-            packet.getChatComponents().modify(0, component -> handler.processComponent(component, player));
-
-        } else if (items && packet.getType() == PacketType.Play.Server.WINDOW_ITEMS) {
-            packet.getItemListModifier().modify(0, itemStacks -> {
-                for (ItemStack itemStack : itemStacks) {
-                    ItemMeta itemMeta = itemStack.getItemMeta();
-                    if (itemMeta != null) {
-                        if (itemMeta.hasDisplayName()) itemMeta.displayName(handler.processComponent(itemMeta.displayName(), player));
-                        if (itemMeta.hasLore()) itemMeta.lore(handler.processComponent(itemMeta.lore(), player));
-                        itemStack.setItemMeta(itemMeta);
-                    }
-                }
-                return itemStacks;
-            });
-
+        if (titles && type == PacketType.Play.Server.OPEN_WINDOW) {
+            WrapperPlayServerOpenWindow packet = new WrapperPlayServerOpenWindow(e);
+            packet.setTitle(handler.processComponent(packet.getTitle(), player));
+        } else if (items && type == PacketType.Play.Server.WINDOW_ITEMS) {
+            WrapperPlayServerWindowItems packet = new WrapperPlayServerWindowItems(e);
+            packet.setItems(handler.processItems(packet.getItems(), player));
         }
     }
 }

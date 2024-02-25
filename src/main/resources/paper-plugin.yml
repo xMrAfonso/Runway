@@ -8,10 +8,6 @@ loader: me.mrafonso.runway.RunwayLoader
 folia-supported: true
 dependencies:
   server:
-    ProtocolLib:
-      load: BEFORE
-      required: false
-      join-classpath: true
     PlaceholderAPI:
       load: BEFORE
       required: false
@@ -20,3 +16,11 @@ dependencies:
       load: BEFORE
       required: false
       join-classpath: true
+
+softdepend:
+  - ProtocolLib
+  - ProtocolSupport
+  - ViaVersion
+  - ViaBackwards
+  - ViaRewind
+  - Geyser-Spigot

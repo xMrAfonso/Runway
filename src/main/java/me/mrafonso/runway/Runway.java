@@ -1,10 +1,12 @@
 package me.mrafonso.runway;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.event.EventManager;
 import de.leonhard.storage.Config;
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import me.mrafonso.runway.command.RunwayCommand;
 import me.mrafonso.runway.config.ConfigManager;
 import me.mrafonso.runway.listeners.*;
@@ -20,14 +22,18 @@ public final class Runway extends JavaPlugin {
     private BukkitCommandManager<CommandSender> commandManager;
 
     @Override
+    public void onLoad() {
+        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+        PacketEvents.getAPI().getSettings()
+            .reEncodeByDefault(true)
+            .bStats(true);
+        PacketEvents.getAPI().load();
+    }
+
+    @Override
     public void onEnable() {
         configManager.reload();
 
-        if (getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
-            getLogger().log(Level.SEVERE, "ProtocolLib not found! Disabling plugin...");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") == null) {
             configManager.config().set("placeholder-hook.placeholderapi", false);
             getLogger().log(Level.WARNING, "PlaceholderAPI not found! Disabling PlaceholderAPI support...");
@@ -41,14 +47,14 @@ public final class Runway extends JavaPlugin {
         ProcessHandler processHandler = new ProcessHandler(configManager);
         processHandler.reloadPlaceholders();
 
-        ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-        protocolManager.addPacketListener(new SystemChatListener(this, processHandler, configManager));
-        protocolManager.addPacketListener(new TablistListener(this, processHandler, configManager));
-        protocolManager.addPacketListener(new ServerPingListener(this, processHandler, configManager));
-        protocolManager.addPacketListener(new InventoryListener(this, processHandler, configManager));
-        protocolManager.addPacketListener(new TitleListener(this, processHandler, configManager));
-        protocolManager.addPacketListener(new ScoreboardListener(this, processHandler, configManager));
-        protocolManager.addPacketListener(new ItemListener(this, processHandler, configManager));
+        EventManager manager = PacketEvents.getAPI().getEventManager();
+        manager.registerListeners(new SystemChatListener(processHandler, configManager),
+                                  new TablistListener(processHandler, configManager),
+                                  new InventoryListener(processHandler, configManager),
+                                  new TitleListener(processHandler, configManager),
+                                  new ScoreboardListener(processHandler, configManager),
+                                  new ItemListener(processHandler, configManager));
+        PacketEvents.getAPI().init();
 
         commandManager = BukkitCommandManager.create(this);
         commandManager.registerCommand(new RunwayCommand(configManager, processHandler));

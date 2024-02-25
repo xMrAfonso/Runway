@@ -1,9 +1,10 @@
 plugins {
     id("java")
+    id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
 group = "me.mrafonso"
-version = "1.0"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -20,10 +21,6 @@ repositories {
         url = uri("https://jitpack.io")
     }
     maven {
-        name = "dmulloy2-repo"
-        url = uri("https://repo.dmulloy2.net/repository/public/")
-    }
-    maven {
         name = "extendedclip-repo"
         url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     }
@@ -31,11 +28,16 @@ repositories {
         name = "triumph-repo"
         url = uri("https://repo.triumphteam.dev/snapshots/")
     }
+    maven {
+        name = "codemc-repo"
+        url = uri("https://repo.codemc.org/repository/maven-public/")
+    }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
+    //compileOnly("com.github.retrooper.packetevents:spigot:2.2.1") Waiting for 2.2.2 to fix an issue
+    implementation(files("libs/packetevents-spigot-2.2.1.jar"))
     compileOnly("me.clip:placeholderapi:2.11.5")
     compileOnly("io.github.miniplaceholders:miniplaceholders-kotlin-ext:2.2.3")
     compileOnly("com.github.simplix-softworks:simplixstorage:3.2.7")
@@ -57,4 +59,9 @@ tasks.processResources {
 
 tasks.compileJava {
     options.encoding = "UTF-8"
+}
+
+tasks.shadowJar {
+    relocate("com.github.retrooper", "me.mrafonso.packetevents")
+    minimize()
 }
