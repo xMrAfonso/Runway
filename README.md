@@ -1,6 +1,6 @@
 ![Main Logo](https://cdn.modrinth.com/data/cached_images/e4bcf9fa21266eef2674f7459f2ff1cd786012a1.png)
 
-Runway allows you to support MiniMessage formatting in messages, menus, titles, scoreboards, items, MOTD and Tablist from any plugin. The plugin works at the protocol-level and modifies incoming packets sent by plugins.
+Runway allows you to support MiniMessage formatting in messages, menus, titles, items, MOTD and Tablist from any plugin. The plugin works at the protocol-level and modifies incoming packets sent by plugins.
 
 If enabled, PlaceholderAPI/MiniPlaceholders is also supported in messages parsed by Runway. You also have the option to add your own static custom placeholders in MiniMessage.
 
