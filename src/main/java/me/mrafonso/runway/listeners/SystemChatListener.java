@@ -5,9 +5,14 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSystemChatMessage;
 import me.mrafonso.runway.config.ConfigManager;
 import me.mrafonso.runway.util.ProcessHandler;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 
 public class SystemChatListener extends AbstractListener {
+    private final MiniMessage mm = MiniMessage.miniMessage();
+
     public SystemChatListener(ProcessHandler processHandler, ConfigManager configManager) {
         super(processHandler, configManager);
     }
@@ -19,6 +24,19 @@ public class SystemChatListener extends AbstractListener {
 
         Player player = (Player) e.getPlayer();
         WrapperPlayServerSystemChatMessage packet = new WrapperPlayServerSystemChatMessage(e);
-        packet.setMessage(handler.processComponent(packet.getMessage(), player));
+        String message = mm.serialize(packet.getMessage());
+
+        if (message.startsWith("<lang:multiplayer.message_not_delivered:")) {
+            e.setCancelled(true);
+            return;
+        }
+
+        if (message.contains("[actionbar]")) {
+            message = message.replace("[actionbar]", "");
+            e.setCancelled(true);
+            player.sendActionBar(handler.processComponent(message, player));
+        } else {
+            packet.setMessage(handler.processComponent(message, player));
+        }
     }
 }

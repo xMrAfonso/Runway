@@ -52,7 +52,11 @@ public class ProcessHandler {
     }
 
     public Component processComponent(@Nullable Component component, @Nullable Player player) {
-        if (component == null) return Component.empty();
+        return processComponent(component != null ? miniMessage.serialize(component) : null, player);
+    }
+
+    public Component processComponent(@Nullable String s, @Nullable Player player) {
+        if (s == null) return Component.empty();
 
         boolean requirePrefixMM = config.getOrDefault("require-prefix.minimessage", true);
         boolean placeholderapi = config.getOrDefault("placeholder-hook.placeholderapi", false);
@@ -61,7 +65,6 @@ public class ProcessHandler {
         boolean ignoreLegacy = config.getOrDefault("ignore-legacy", false);
         boolean disableItalics = config.getOrDefault("disable-italics", true);
 
-        String s = miniMessage.serialize(component);
         if (s.contains("§")) {
             if (ignoreLegacy) {
                 s = s.replace("§r", "&");
@@ -72,7 +75,7 @@ public class ProcessHandler {
             }
         }
 
-        if (requirePrefixMM && !s.contains("[mm]")) return component;
+        if (requirePrefixMM && !s.contains("[mm]")) return miniMessage.deserialize(s);
 
         s = s.replace("[mm]", "");
         s = s.replace("\\<", "<");

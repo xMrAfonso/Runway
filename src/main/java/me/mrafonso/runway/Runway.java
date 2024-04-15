@@ -5,7 +5,6 @@ import com.github.retrooper.packetevents.event.EventManager;
 import de.leonhard.storage.Config;
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
-import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import me.mrafonso.runway.command.RunwayCommand;
 import me.mrafonso.runway.config.ConfigManager;
@@ -25,8 +24,7 @@ public final class Runway extends JavaPlugin {
     public void onLoad() {
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
         PacketEvents.getAPI().getSettings()
-            .reEncodeByDefault(true)
-            .bStats(true);
+            .reEncodeByDefault(true);
         PacketEvents.getAPI().load();
     }
 
