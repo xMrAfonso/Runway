@@ -22,6 +22,7 @@ This can also be disabled in the *config.yml* which will make all incoming packe
 
 PlaceholderAPI/MiniPlaceholders support uses the prefix `[p]` to detect when it should parse placeholders. The same rules of MiniMessage formatting apply here.
 
+You can also make system messages be sent in the action bar by including the prefix `[actionbar]` in the message.
 **Commands:**
 - `/runway reload` - Reloads the plugin configuration.
 - `/runway parse <text>` - Parses the given text to MiniMessage.
