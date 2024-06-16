@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("io.github.goooler.shadow") version "8.1.7"
 }
 
 group = "me.mrafonso"
@@ -35,17 +35,16 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
-    //compileOnly("com.github.retrooper.packetevents:spigot:2.2.1") Waiting for 2.2.2 to fix an issue
-    implementation(files("libs/packetevents-spigot-2.2.1.jar"))
+    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
+    compileOnly("com.github.retrooper.packetevents:spigot:2.3.0")
     compileOnly("me.clip:placeholderapi:2.11.5")
-    compileOnly("io.github.miniplaceholders:miniplaceholders-kotlin-ext:2.2.3")
+    compileOnly("io.github.miniplaceholders:miniplaceholders-api:2.2.3")
     compileOnly("com.github.simplix-softworks:simplixstorage:3.2.7")
-    compileOnly("dev.triumphteam:triumph-cmd-bukkit:2.0.0-ALPHA-9")
+    compileOnly("dev.triumphteam:triumph-cmd-bukkit:2.0.0-ALPHA-10")
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 tasks.processResources {
@@ -59,9 +58,4 @@ tasks.processResources {
 
 tasks.compileJava {
     options.encoding = "UTF-8"
-}
-
-tasks.shadowJar {
-    relocate("com.github.retrooper", "me.mrafonso.packetevents")
-    minimize()
 }

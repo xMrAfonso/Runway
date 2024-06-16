@@ -24,7 +24,9 @@ public final class Runway extends JavaPlugin {
     public void onLoad() {
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
         PacketEvents.getAPI().getSettings()
-            .reEncodeByDefault(true);
+            .reEncodeByDefault(true)
+            .bStats(false)
+            .checkForUpdates(false);
         PacketEvents.getAPI().load();
     }
 

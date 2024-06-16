@@ -7,8 +7,6 @@ import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.mrafonso.runway.config.ConfigManager;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;

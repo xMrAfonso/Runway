@@ -19,8 +19,8 @@ public class RunwayLoader implements PluginLoader {
         resolver.addRepository(new RemoteRepository.Builder("codemc-repo", "default", "https://repo.codemc.io/repository/maven-releases/").build());
 
         resolver.addDependency(new Dependency(new DefaultArtifact("com.github.simplix-softworks:simplixstorage:3.2.7"), null));
-        resolver.addDependency(new Dependency(new DefaultArtifact("dev.triumphteam:triumph-cmd-bukkit:2.0.0-ALPHA-9"), null));
-        //resolver.addDependency(new Dependency(new DefaultArtifact("com.github.retrooper.packetevents:spigot:2.2.1"), null));
+        resolver.addDependency(new Dependency(new DefaultArtifact("dev.triumphteam:triumph-cmd-bukkit:2.0.0-ALPHA-10"), null));
+        resolver.addDependency(new Dependency(new DefaultArtifact("com.github.retrooper.packetevents:spigot:2.3.0"), null));
 
         classpathBuilder.addLibrary(resolver);
     }
