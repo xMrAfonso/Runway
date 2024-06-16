@@ -9,7 +9,7 @@ If enabled, PlaceholderAPI/MiniPlaceholders is also supported in messages parsed
 ## Installation
 ### Requirements
 **Server:**
-- [Paper 1.20+ (latest recommended)](https://papermc.io/downloads/paper)
+- [Paper 1.20.6 (below is untested)](https://papermc.io/downloads/paper)
 - Java 17
 
 **Plugins:**
