@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.mrafonso"
-version = "1.1.1"
+version = "1.1.2"
 
 repositories {
     mavenCentral()
@@ -36,7 +36,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
-    compileOnly("com.github.retrooper.packetevents:spigot:2.3.0")
+    compileOnly("com.github.retrooper:packetevents-spigot:2.4.0")
     compileOnly("me.clip:placeholderapi:2.11.5")
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:2.2.3")
     compileOnly("com.github.simplix-softworks:simplixstorage:3.2.7")

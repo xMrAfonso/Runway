@@ -20,7 +20,7 @@ public class RunwayLoader implements PluginLoader {
 
         resolver.addDependency(new Dependency(new DefaultArtifact("com.github.simplix-softworks:simplixstorage:3.2.7"), null));
         resolver.addDependency(new Dependency(new DefaultArtifact("dev.triumphteam:triumph-cmd-bukkit:2.0.0-ALPHA-10"), null));
-        resolver.addDependency(new Dependency(new DefaultArtifact("com.github.retrooper.packetevents:spigot:2.3.0"), null));
+        resolver.addDependency(new Dependency(new DefaultArtifact("com.github.retrooper:packetevents-spigot:2.4.0"), null));
 
         classpathBuilder.addLibrary(resolver);
     }
