@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.mrafonso"
-version = "1.1.2"
+version = "1.1.3"
 
 repositories {
     mavenCentral()
@@ -30,13 +30,13 @@ repositories {
     }
     maven {
         name = "codemc-repo"
-        url = uri("https://repo.codemc.org/repository/maven-public/")
+        url = uri("https://repo.codemc.org/repository/maven-snapshots/")
     }
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
-    compileOnly("com.github.retrooper:packetevents-spigot:2.4.0")
+    compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
+    implementation("com.github.retrooper:packetevents-spigot:2.5.0-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.11.5")
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:2.2.3")
     compileOnly("com.github.simplix-softworks:simplixstorage:3.2.7")
@@ -58,4 +58,9 @@ tasks.processResources {
 
 tasks.compileJava {
     options.encoding = "UTF-8"
+}
+
+tasks.shadowJar {
+    relocate("com.github.retrooper", "me.mrafonso.libs.packetevents")
+    minimize()
 }

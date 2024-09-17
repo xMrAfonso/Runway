@@ -16,11 +16,15 @@ dependencies:
       load: BEFORE
       required: false
       join-classpath: true
-
-softdepend:
-  - ProtocolLib
-  - ProtocolSupport
-  - ViaVersion
-  - ViaBackwards
-  - ViaRewind
-  - Geyser-Spigot
+    ViaVersion:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    ViaBackwards:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    ViaRewind:
+      load: BEFORE
+      required: false
+      join-classpath: true
