@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.mrafonso"
-version = "1.1.3"
+version = "1.1.4"
 
 repositories {
     mavenCentral()
@@ -30,13 +30,13 @@ repositories {
     }
     maven {
         name = "codemc-repo"
-        url = uri("https://repo.codemc.org/repository/maven-snapshots/")
+        url = uri("https://repo.codemc.org/repository/maven-releases/")
     }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
-    implementation("com.github.retrooper:packetevents-spigot:2.5.0-SNAPSHOT")
+    implementation("com.github.retrooper:packetevents-spigot:2.5.0")
     compileOnly("me.clip:placeholderapi:2.11.5")
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:2.2.3")
     compileOnly("com.github.simplix-softworks:simplixstorage:3.2.7")
