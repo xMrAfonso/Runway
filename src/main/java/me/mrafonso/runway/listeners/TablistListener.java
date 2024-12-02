@@ -15,9 +15,9 @@ public class TablistListener extends AbstractListener {
     @Override
     public void onPacketPlaySend(PacketPlaySendEvent e) {
         if (!config.getOrDefault("listeners.tablist", true) ||
-            e.getPacketType() == PacketType.Play.Server.PLAYER_LIST_HEADER_AND_FOOTER) return;
+            e.getPacketType() != PacketType.Play.Server.PLAYER_LIST_HEADER_AND_FOOTER) return;
 
-        Player player = (Player) e.getPlayer();
+        Player player = e.getPlayer();
         WrapperPlayServerPlayerListHeaderAndFooter packet = new WrapperPlayServerPlayerListHeaderAndFooter(e);
         packet.setFooter(handler.processComponent(packet.getFooter(), player));
         packet.setHeader(handler.processComponent(packet.getHeader(), player));

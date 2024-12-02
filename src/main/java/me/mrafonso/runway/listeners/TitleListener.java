@@ -21,7 +21,7 @@ public class TitleListener extends AbstractListener {
             type != PacketType.Play.Server.SET_TITLE_TEXT &&
             type != PacketType.Play.Server.SET_TITLE_SUBTITLE)) return;
 
-        Player player = (Player) e.getPlayer();
+        Player player = e.getPlayer();
 
         if (type == PacketType.Play.Server.SET_TITLE_TEXT) {
             WrapperPlayServerSetTitleText packet = new WrapperPlayServerSetTitleText(e);

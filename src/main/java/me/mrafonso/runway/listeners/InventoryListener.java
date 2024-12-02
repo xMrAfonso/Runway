@@ -21,7 +21,7 @@ public class InventoryListener extends AbstractListener {
         if (type != PacketType.Play.Server.OPEN_WINDOW &&
             type != PacketType.Play.Server.WINDOW_ITEMS) return;
 
-        Player player = (Player) e.getPlayer();
+        Player player = e.getPlayer();
         boolean titles = config.getOrDefault("listeners.inventory.titles", true);
         boolean items = config.getOrDefault("listeners.inventory.items", true);
 

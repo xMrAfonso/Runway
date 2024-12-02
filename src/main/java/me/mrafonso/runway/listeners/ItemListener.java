@@ -18,7 +18,7 @@ public class ItemListener extends AbstractListener {
         if (!config.getOrDefault("listeners.items", true) ||
             e.getPacketType() != PacketType.Play.Server.SET_SLOT) return;
 
-        Player player = (Player) e.getPlayer();
+        Player player = e.getPlayer();
         WrapperPlayServerSetSlot packet = new WrapperPlayServerSetSlot(e);
         packet.setItem(handler.processItem(packet.getItem(), player));
     }

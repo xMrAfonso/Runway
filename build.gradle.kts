@@ -1,42 +1,24 @@
 plugins {
     id("java")
-    id("io.github.goooler.shadow") version "8.1.7"
+    id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
 group = "me.mrafonso"
-version = "1.1.4"
+version = "1.1.5"
 
 repositories {
     mavenCentral()
-    maven {
-        name = "papermc-repo"
-        url = uri("https://repo.papermc.io/repository/maven-public/")
-    }
-    maven {
-        name = "sonatype"
-        url = uri("https://oss.sonatype.org/content/groups/public/")
-    }
-    maven {
-        name = "jitpack-repo"
-        url = uri("https://jitpack.io")
-    }
-    maven {
-        name = "extendedclip-repo"
-        url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-    }
-    maven {
-        name = "triumph-repo"
-        url = uri("https://repo.triumphteam.dev/snapshots/")
-    }
-    maven {
-        name = "codemc-repo"
-        url = uri("https://repo.codemc.org/repository/maven-releases/")
-    }
+    maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
+    maven { url = uri("https://oss.sonatype.org/content/groups/public/") }
+    maven { url = uri("https://jitpack.io") }
+    maven { url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/") }
+    maven { url = uri("https://repo.triumphteam.dev/snapshots/") }
+    maven { url = uri("https://repo.codemc.org/repository/maven-releases/") }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
-    implementation("com.github.retrooper:packetevents-spigot:2.5.0")
+    compileOnly("com.github.retrooper:packetevents-spigot:2.6.0")
     compileOnly("me.clip:placeholderapi:2.11.5")
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:2.2.3")
     compileOnly("com.github.simplix-softworks:simplixstorage:3.2.7")
@@ -45,6 +27,10 @@ dependencies {
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+}
+
+tasks.runServer {
+    minecraftVersion("1.20.6")
 }
 
 tasks.processResources {
@@ -58,9 +44,4 @@ tasks.processResources {
 
 tasks.compileJava {
     options.encoding = "UTF-8"
-}
-
-tasks.shadowJar {
-    relocate("com.github.retrooper", "me.mrafonso.libs.packetevents")
-    minimize()
 }

@@ -21,7 +21,7 @@ public class ScoreboardListener extends AbstractListener {
             type != PacketType.Play.Server.SCOREBOARD_OBJECTIVE &&
             type != PacketType.Play.Server.UPDATE_SCORE)) return;
 
-        Player player = (Player) e.getPlayer();
+        Player player = e.getPlayer();
 
         if (type == PacketType.Play.Server.SCOREBOARD_OBJECTIVE) {
             WrapperPlayServerScoreboardObjective packet = new WrapperPlayServerScoreboardObjective(e);

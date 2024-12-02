@@ -20,7 +20,7 @@ public class SystemChatListener extends AbstractListener {
         if (!config.getOrDefault("listeners.system-messages", true) ||
             e.getPacketType() != PacketType.Play.Server.SYSTEM_CHAT_MESSAGE) return;
 
-        Player player = (Player) e.getPlayer();
+        Player player = e.getPlayer();
         WrapperPlayServerSystemChatMessage packet = new WrapperPlayServerSystemChatMessage(e);
         String message = mm.serialize(packet.getMessage());
 
