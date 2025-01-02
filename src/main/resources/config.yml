@@ -21,8 +21,6 @@ ignore-legacy: false
 listeners:
   # Whether to parse system messages, also known as plugin messages. (default: true)
   system-messages: true
-  # Whether to parse the MOTD. (default: true)
-  motd: true
   # Whether to parse the tablist. (default: true)
   tablist: true
   # Whether to parse titles and subtitles. (default: true)

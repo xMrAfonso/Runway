@@ -1,10 +1,11 @@
 plugins {
     id("java")
     id("xyz.jpenilla.run-paper") version "2.3.1"
+    id("com.gradleup.shadow") version "8.3.5"
 }
 
 group = "me.mrafonso"
-version = "1.1.5"
+version = "1.1.6"
 
 repositories {
     mavenCentral()
@@ -17,8 +18,8 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
-    compileOnly("com.github.retrooper:packetevents-spigot:2.6.0")
+    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    implementation("com.github.retrooper:packetevents-spigot:2.7.0")
     compileOnly("me.clip:placeholderapi:2.11.5")
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:2.2.3")
     compileOnly("com.github.simplix-softworks:simplixstorage:3.2.7")
@@ -29,8 +30,17 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
+tasks.build {
+    dependsOn("shadowJar")
+}
+
 tasks.runServer {
-    minecraftVersion("1.20.6")
+    minecraftVersion("1.21.3")
+}
+
+tasks.shadowJar {
+    relocate(" com.github.retrooper", "me.mrafonso.shadow.packetevents")
+    minimize()
 }
 
 tasks.processResources {

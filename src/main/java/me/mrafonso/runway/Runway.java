@@ -53,7 +53,8 @@ public final class Runway extends JavaPlugin {
                                   new InventoryListener(processHandler, configManager),
                                   new TitleListener(processHandler, configManager),
                                   new ScoreboardListener(processHandler, configManager),
-                                  new ItemListener(processHandler, configManager));
+                                  new ItemListener(processHandler, configManager)
+                                 );
         PacketEvents.getAPI().init();
 
         commandManager = BukkitCommandManager.create(this);

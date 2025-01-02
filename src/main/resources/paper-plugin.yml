@@ -2,9 +2,10 @@ name: Runway
 description: "Support MiniMessage formatting everywhere from anywhere."
 version: '${version}'
 main: me.mrafonso.runway.Runway
-api-version: '1.20'
+api-version: '1.21'
 author: MrAfonso
 loader: me.mrafonso.runway.RunwayLoader
+open-classloader: true
 folia-supported: true
 dependencies:
   server:
