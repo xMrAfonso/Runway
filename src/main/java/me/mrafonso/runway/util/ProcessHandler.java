@@ -63,17 +63,20 @@ public class ProcessHandler {
         boolean ignoreLegacy = config.getOrDefault("ignore-legacy", false);
         boolean disableItalics = config.getOrDefault("disable-italics", true);
 
+        if (requirePrefixMM && !s.contains("[mm]")) {
+            if (s.contains("§")) return Component.text(s);
+            else return miniMessage.deserialize(s);
+        }
+
         if (s.contains("§")) {
             if (ignoreLegacy) {
-                s = s.replace("§r", "&");
+                s = s.replace("§", "&");
             } else {
                 config.set("ignore-legacy", true);
                 Bukkit.getLogger().log(Level.WARNING, "Detected Legacy colors! Runway is now ignoring legacy colors. \n" +
-                                                      "To avoid receiving this message again, disable legacy colors in the config.");
+                    "To avoid receiving this message again, disable legacy colors in the config.");
             }
         }
-
-        if (requirePrefixMM && !s.contains("[mm]")) return miniMessage.deserialize(s);
 
         s = s.replace("[mm]", "");
         s = s.replace("\\<", "<");
