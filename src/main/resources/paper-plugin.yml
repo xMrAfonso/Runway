@@ -4,7 +4,6 @@ version: '${version}'
 main: me.mrafonso.runway.Runway
 api-version: '1.21'
 author: MrAfonso
-loader: me.mrafonso.runway.RunwayLoader
 open-classloader: true
 folia-supported: true
 dependencies:

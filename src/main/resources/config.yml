@@ -14,7 +14,7 @@ placeholder-hook:
 disable-italics: true
 
 # Whether to ignore legacy colors in packets by replacing the legacy color code with &.
-# If this is set to false, Runway will log a warning and set this to true.
+# If this is set to false, Runway will log me.mrafonso.runway.a warning and set this to true.
 ignore-legacy: false
 
 # Listeners for Runway to listen to.
