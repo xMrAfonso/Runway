@@ -16,7 +16,11 @@ class ConfigHandler(val plugin: Runway, init: ConfigHandler.() -> Unit = {}) {
     }
 
     inline fun <reified T : Any> register(fileName: String) {
-        val config = loadConfig<T> {
+        configs[T::class.java] = load<T>(fileName)
+    }
+
+    inline fun <reified T : Any> load(fileName: String): Config<T> {
+        return loadConfig<T> {
             file = Path.of("${plugin.dataFolder}/$fileName")
             format = Yaml {
                 indentationSize = 2
@@ -24,7 +28,6 @@ class ConfigHandler(val plugin: Runway, init: ConfigHandler.() -> Unit = {}) {
                 encodeDefaults = true
             }
         }
-        configs[T::class.java] = config
     }
 
     fun reload() {

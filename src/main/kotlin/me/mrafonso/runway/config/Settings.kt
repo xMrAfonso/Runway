@@ -16,7 +16,7 @@ data class Settings(
     val placeholderHook: PlaceholderHook = PlaceholderHook(),
 
     @SerialComment(["Whether to disable italics in names and lores of items. (default: true)"])
-    val disableItalics: Boolean = true,
+    var disableItalics: Boolean = true,
 
     @SerialComment(["Listeners that Runway will listen to and intercept their packets."])
     val listeners: Listeners = Listeners()
@@ -32,13 +32,13 @@ data class Settings(
 
     @Serializable
     data class PlaceholderHook(
-        val placeholderAPI: Boolean = true,
-        val miniPlaceholders: Boolean = true
+        var placeholderAPI: Boolean = true,
+        var miniPlaceholders: Boolean = true
     )
 
     @Serializable
     data class Listeners(
         @SerialComment(["Whether to parse system messages, also known as plugin messages. (default: true)"])
-        val systemMessages: Boolean = true,
+        var systemMessages: Boolean = true,
     )
 }
