@@ -4,7 +4,6 @@ import dev.triumphteam.polaris.Config
 import dev.triumphteam.polaris.loadConfig
 import dev.triumphteam.polaris.yaml.Yaml
 import me.mrafonso.runway.Runway
-import me.mrafonso.runway.config.Settings
 import java.nio.file.Path
 
 class ConfigHandler(val plugin: Runway, init: ConfigHandler.() -> Unit = {}) {
@@ -30,11 +29,11 @@ class ConfigHandler(val plugin: Runway, init: ConfigHandler.() -> Unit = {}) {
         }
     }
 
-    fun reload() {
+    fun reloadAll() {
         configs.forEach { (_, config) -> config.reload() }
     }
 
-    fun save() {
+    fun saveAll() {
         configs.forEach { (_, config) -> config.save() }
     }
 

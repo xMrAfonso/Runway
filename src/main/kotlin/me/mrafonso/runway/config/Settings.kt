@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class Settings(
     val debug: Boolean = false,
 
-    val requirePrefix: RequirePrefix = RequirePrefix(),
+    val prefixes: Prefixes = Prefixes(),
 
     @SerialComment([
         "Whether PlaceholderAPI or MiniPlaceholders should be hooked into Runway.",
@@ -23,11 +23,30 @@ data class Settings(
 ) {
 
     @Serializable
-    data class RequirePrefix(
-        @SerialComment(["Is [mm] required for packets to be parsed by MiniMessage? (default: true)"])
-        val minimessage: Boolean = true,
-        @SerialComment(["Is [p] required for packets to be parsed by PlaceholderAPI/MiniPlaceholders? (default: true)"])
-        val placeholders: Boolean = true
+    data class MiniMessagePrefix(
+        @SerialComment(["Defines if a prefix is required for texts to be parsed by Runway."])
+        val required: Boolean = true,
+
+        @SerialComment(["The prefix used to identify texts to be parsed by Runway."])
+        val minimessage: String = "[mm]",
+    )
+
+    @Serializable
+    data class PlaceholdersPrefix(
+        @SerialComment(["Defines if a prefix is required for texts to be parsed by Runway."])
+        val required: Boolean = true,
+
+        @SerialComment(["The prefix used to identify texts to be parsed by PlaceholderAPI or MiniPlaceholders.",
+            "Note: ",
+            "- Placeholders will only be parsed if at least one hook is enabled.",
+            "- If minimessage requires a prefix, this will only be parsed if the minimessage prefix is present."])
+        val placeholders: String = "[p]"
+    )
+
+    @Serializable
+    data class Prefixes(
+        val minimessage: MiniMessagePrefix = MiniMessagePrefix(),
+        val placeholders: PlaceholdersPrefix = PlaceholdersPrefix()
     )
 
     @Serializable
