@@ -9,7 +9,7 @@ class Runway : JavaPlugin() {
 
     override fun onEnable() {
         val configHandler = ConfigHandler(this) {
-            register<Settings>("settings.yml")
+            register<Settings>("settings.yml") { Settings() }
         }
         logger.info("Runway enabled!")
     }

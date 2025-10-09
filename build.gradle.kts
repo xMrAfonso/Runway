@@ -47,7 +47,8 @@ tasks {
     }
 
     shadowJar {
-        relocate(" com.github.retrooper", "me.mrafonso.shadow.packetevents")
+        relocate("com.github.retrooper", "me.mrafonso.shadow.packetevents")
+        relocate("kotlin.reflect", "me.mrafonso.shadow.kotlin-reflect")
         minimize()
     }
 

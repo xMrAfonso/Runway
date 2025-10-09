@@ -28,7 +28,7 @@ data class Settings(
         val required: Boolean = true,
 
         @SerialComment(["The prefix used to identify texts to be parsed by Runway."])
-        val minimessage: String = "[mm]",
+        val prefix: String = "[mm]",
     )
 
     @Serializable
@@ -40,7 +40,7 @@ data class Settings(
             "Note: ",
             "- Placeholders will only be parsed if at least one hook is enabled.",
             "- If minimessage requires a prefix, this will only be parsed if the minimessage prefix is present."])
-        val placeholders: String = "[p]"
+        val prefix: String = "[p]"
     )
 
     @Serializable
