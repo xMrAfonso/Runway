@@ -6,7 +6,7 @@ import me.mrafonso.runway.config.migration.OldConfig
 class MigrationHandler(val configHandler: ConfigHandler) {
 
     fun migrate() {
-        val oldConfig = configHandler.load<OldConfig>("config.yml") { OldConfig() }.get()
+        val oldConfig = configHandler.load<OldConfig>("config.yml").get()
         val newConfig = configHandler.get<Settings>()
 
         // Migrate placeholderHook

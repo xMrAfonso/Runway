@@ -23,7 +23,7 @@ class ConfigHandler(val plugin: Runway, init: ConfigHandler.() -> Unit = {}) {
         configs[T::class.java] = load<T>(fileName, null)
     }
 
-    inline fun <reified T : Any> load(fileName: String, default: T?): Config<T> {
+    inline fun <reified T : Any> load(fileName: String, default: T? = null): Config<T> {
         return loadConfig<T> {
             file = Path.of("${plugin.dataFolder}/$fileName")
             default?.let { defaultInstance { default } }
