@@ -1,34 +1,59 @@
 package me.mrafonso.runway.handler
 
+import io.github.miniplaceholders.api.MiniPlaceholders
+import me.clip.placeholderapi.libs.kyori.adventure.platform.bukkit.BukkitAudiences
 import me.mrafonso.runway.config.Settings
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.minimessage.ParsingException
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import org.bukkit.entity.Player
 
-class ProcessHandler(private val configHandler: ConfigHandler) {
+
+class ProcessHandler(
+    private val hookHandler: HookHandler,
+    private val configHandler: ConfigHandler
+) {
+    private val MM = MiniMessage.miniMessage()
     private val miniMessage = MiniMessage.miniMessage()
     private val gsonSerializer = GsonComponentSerializer.gson()
 
-    private val noItalics = "<italic:false>"
+    private val noItalics = "<!italic>"
 
-    fun processComponent(input: String?, player: Player?): Component? {
-        if (input.isNullOrBlank() || '§' in input) return null
+    fun processComponent(input: Component, player: Player?): Component? {
+        val settings = configHandler.get<Settings>()
+        val requirePrefix = settings.prefix.required
+        val prefix = settings.prefix.value
 
-        val config = configHandler.get<Settings>()
-        //val requirePrefixMM = config.requirePrefix.minimessage
-        //val requirePrefixP = config.requirePrefix.placeholders
-        val disableItalics = config.disableItalics
-        val miniPlaceholdersHook = config.placeholderHook.miniPlaceholders
-        val placeholderAPIHook = config.placeholderHook.placeholderAPI
+        val disableItalics = settings.disableItalics
+        var text = MM.serialize(input)
 
-        val hasMMPrefix = input.startsWith("[mm]")
-        //if (requirePrefixMM && !hasMMPrefix) return null
+        if (requirePrefix &&
+            !text.startsWith(prefix)
+        ) return null
 
-        var text = input.removePrefix("[mm]")
-        if (disableItalics) text = noItalics + text
+        if (!requirePrefix &&
+            text.startsWith("!$prefix")
+        ) return null
 
+        if(text.startsWith(prefix)) text = text.drop(prefix.length)
+        if (disableItalics) text = "$noItalics$text"
 
-        return null
+        var resolver: TagResolver = TagResolver.standard()
+        if (hookHandler.miniPlaceholders) {
+            resolver = MiniPlaceholders.audienceGlobalPlaceholders()
+            println("yup mini")
+        }
+
+        return try {
+            player?.let {
+                println("player not null")
+                MM.deserialize(text,player, resolver)
+            } ?: MM.deserialize(text, resolver)
+        } catch (_: ParsingException) {
+            null
+        }
     }
 }

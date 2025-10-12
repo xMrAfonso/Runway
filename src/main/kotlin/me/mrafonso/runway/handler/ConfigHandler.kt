@@ -5,6 +5,7 @@ import dev.triumphteam.polaris.loadConfig
 import dev.triumphteam.polaris.yaml.Yaml
 import me.mrafonso.runway.Runway
 import me.mrafonso.runway.config.Settings
+import java.nio.file.Files
 import java.nio.file.Path
 
 class ConfigHandler(val plugin: Runway, init: ConfigHandler.() -> Unit = {}) {
@@ -16,18 +17,16 @@ class ConfigHandler(val plugin: Runway, init: ConfigHandler.() -> Unit = {}) {
     }
 
     inline fun <reified T : Any> register(fileName: String, noinline default: () -> T) {
-        configs[T::class.java] = load<T>(fileName, default())
+        load<T>(fileName, default())?.let { configs[T::class.java] = it }
     }
 
-    inline fun <reified T : Any> register(fileName: String) {
-        configs[T::class.java] = load<T>(fileName, null)
-    }
-
-    inline fun <reified T : Any> load(fileName: String, default: T? = null): Config<T> {
+    inline fun <reified T : Any> load(fileName: String, default: T? = null): Config<T>? {
+        val path = Path.of("${plugin.dataFolder}/$fileName")
+        if (default == null && !Files.exists(path)) return null
         return loadConfig<T> {
-            file = Path.of("${plugin.dataFolder}/$fileName")
+            file = path
             default?.let { defaultInstance { default } }
-            writeDefaults = default != null
+            writeDefaults = true
             format = Yaml {
                 indentationSize = 2
                 explicitNulls = false
