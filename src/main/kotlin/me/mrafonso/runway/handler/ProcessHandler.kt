@@ -19,7 +19,8 @@ import org.bukkit.entity.Player
  */
 class ProcessHandler(
     private val hookHandler: HookHandler,
-    private val configHandler: ConfigHandler
+    private val configHandler: ConfigHandler,
+    private val resolverHandler: ResolverHandler
 ) {
     private val miniMessage = MiniMessage.miniMessage()
     private val noItalics = "<!italic>"
@@ -69,9 +70,9 @@ class ProcessHandler(
         // Apply no italics tag if needed
         if (disableItalics) text = "$noItalics$text"
 
-        var resolver: TagResolver = TagResolver.standard()
+        var resolver: TagResolver = resolverHandler.resolver
         if (hookHandler.miniPlaceholders) {
-            resolver = MiniPlaceholders.audienceGlobalPlaceholders()
+            resolver = TagResolver.resolver(resolver, MiniPlaceholders.audienceGlobalPlaceholders())
         }
 
         return try {

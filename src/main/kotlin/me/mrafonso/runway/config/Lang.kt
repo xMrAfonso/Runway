@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Lang(
-    val key: String = "",
+    val keya: String = "",
 )

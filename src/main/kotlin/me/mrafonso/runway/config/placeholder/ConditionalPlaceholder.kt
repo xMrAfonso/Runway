@@ -6,9 +6,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("CONDITIONAL")
 data class ConditionalPlaceholder(
+    override val group: String? = null,
     val condition: String,
-    val ifTrue: IPlaceholder,
+    val ifTrue: String,
 
     @SerialName("else")
-    val ifElse: IPlaceholder? = null
-) : IPlaceholder
+    val ifElse: String? = null
+) : Placeholder

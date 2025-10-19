@@ -4,4 +4,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public sealed interface IPlaceholder
+@SerialName("TEXT")
+data class TextPlaceholder(
+    override val group: String? = null,
+    val value: String
+) : Placeholder
