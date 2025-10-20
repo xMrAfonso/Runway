@@ -14,12 +14,12 @@ import me.mrafonso.runway.config.placeholder.NumberPlaceholder
 import me.mrafonso.runway.config.placeholder.Placeholder
 import me.mrafonso.runway.config.placeholder.PlaceholdersTemplate
 import me.mrafonso.runway.config.placeholder.TextPlaceholder
+import net.kyori.adventure.pointer.Pointered
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.ParsingException
 import net.kyori.adventure.text.minimessage.tag.Tag
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
-import org.bukkit.entity.Player
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -68,7 +68,11 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
                     return@forEach
                 }
 
-                createTagForPlaceholder(placeholder)?.let { builder.resolver(TagResolver.resolver(prefix.lowercase(), it)) }
+                builder.resolver(TagResolver.resolver(prefix.lowercase()) { _, context ->
+                    val target = context.target()
+                    println(prefix)
+                    createTagForPlaceholder(placeholder, target)
+                })
             }
         }
 
@@ -103,11 +107,17 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
      * @param placeholder The [Placeholder] to create a [Tag] for.
      * @return [Tag] The created [Tag], or null if the placeholder type
      */
-    private fun createTagForPlaceholder(placeholder: Placeholder): Tag? {
+    private fun createTagForPlaceholder(placeholder: Placeholder, target: Pointered?): Tag? {
         return when (placeholder) {
-            is TextPlaceholder -> Tag.selfClosingInserting(miniMessage.deserialize(placeholder.value, resolver))
-            is NumberPlaceholder -> Tag.selfClosingInserting(miniMessage.deserialize(placeholder.value.toString(), resolver))
-            is ConditionalPlaceholder -> evaluateConditionalPlaceholder(placeholder)
+            is TextPlaceholder -> {
+                target?.let { Tag.selfClosingInserting(miniMessage.deserialize(placeholder.value, target, resolver)) }
+                    ?: Tag.selfClosingInserting(miniMessage.deserialize(placeholder.value, resolver))
+            }
+            is NumberPlaceholder -> {
+                target?.let { Tag.selfClosingInserting(miniMessage.deserialize(placeholder.value.toString(), target, resolver)) }
+                    ?: Tag.selfClosingInserting(miniMessage.deserialize(placeholder.value.toString(), resolver))
+            }
+            is ConditionalPlaceholder -> evaluateConditionalPlaceholder(placeholder, target)
             else -> null
         }
     }
@@ -118,13 +128,21 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
      * @param placeholder The [ConditionalPlaceholder] to evaluate.
      * @return [Tag] The resulting [Tag] after evaluating the condition.
      */
-    private fun evaluateConditionalPlaceholder(placeholder: ConditionalPlaceholder): Tag {
-        val conditionResult = evaluateExpression(placeholder.condition)
-        val groupResult = evaluateGroupCondition(placeholder.group)
+    private fun evaluateConditionalPlaceholder(placeholder: ConditionalPlaceholder, target: Pointered?): Tag {
+        println("- ${placeholder.condition}")
+        println("+ ${placeholder.group}")
+        val conditionResult = evaluateExpression(placeholder.condition, target)
+        val groupResult = evaluateGroupCondition(placeholder.group, target)
 
         return when {
-            conditionResult && groupResult -> Tag.selfClosingInserting(miniMessage.deserialize(placeholder.ifTrue, resolver))
-            !conditionResult && placeholder.ifElse != null -> Tag.selfClosingInserting(miniMessage.deserialize(placeholder.ifElse, resolver))
+            conditionResult && groupResult -> {
+                target?.let { Tag.selfClosingInserting(miniMessage.deserialize(placeholder.ifTrue, target, resolver)) }
+                    ?: Tag.selfClosingInserting(miniMessage.deserialize(placeholder.ifTrue, resolver))
+            }
+            !conditionResult && placeholder.ifElse != null -> {
+                target?.let { Tag.selfClosingInserting(miniMessage.deserialize(placeholder.ifElse, target, resolver)) }
+                    ?: Tag.selfClosingInserting(miniMessage.deserialize(placeholder.ifElse, resolver))
+            }
             else -> Tag.selfClosingInserting(miniMessage.deserialize("", resolver))
         }
     }
@@ -135,9 +153,14 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
      * @param expression The expression to evaluate.
      * @return [Boolean] The result of the evaluated expression.
      */
-    private fun evaluateExpression(expression: String): Boolean {
+    private fun evaluateExpression(expression: String, target: Pointered?): Boolean {
         // Add caching logic here if needed
-        return expressionParser.compile(expression, ParseWarnCollector(expression)).returnBooleanExpression().evaluate()
+        processPlaceholders(expression, target)?.let {
+            val condition = miniMessage.serialize(it)
+                .replace("\\<", "<").replace("\\>", ">")
+            return expressionParser.compile(condition, ParseWarnCollector(condition)).returnBooleanExpression().evaluate()
+        }
+        return true
     }
 
     /**
@@ -146,21 +169,24 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
      * @param groupName The name of the group to evaluate.
      * @return [Boolean] The result of the group's condition evaluation, or true if no condition exists.
      */
-    private fun evaluateGroupCondition(groupName: String?): Boolean {
-//        val group = groupName?.let { groups[groupName] } ?: return true
-//        if (group.condition == null) return true
-//
-////        val groupCondition = miniMessage.serialize(processPlaceholders(group.condition, player))
-////            .replace("\\<", "<").replace("\\>", ">")
-//
-//        return evaluateExpression(groupCondition)
-        return true
+    private fun evaluateGroupCondition(groupName: String?, target: Pointered?): Boolean {
+        val group = groupName?.let { groups[groupName] } ?: return true
+        if (group.condition == null) return true
+
+        return evaluateExpression(group.condition, target)
     }
 
     /**
-     * Proccesses the input [String] with MiniMessage formatting and custom placeholders.
+     * Process the input [String] with MiniMessage formatting and custom placeholders.
+     *
+     * @param text The input [String] to process.
+     * @param player The [Pointered] to use for MiniPlaceholders parsing. Can be null.
+     * @return [Component] The processed [Component], or null if parsing fails
      */
-    fun processPlaceholders(text: String, player: Player?): Component? {
+    fun processPlaceholders(text: String, player: Pointered?): Component? {
+        if (hookHandler.miniPlaceholders) {
+            resolver = TagResolver.resolver(resolver, MiniPlaceholders.audienceGlobalPlaceholders())
+        }
         return try {
             player?.let {
                 miniMessage.deserialize(text,player, resolver)
@@ -170,6 +196,10 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
         }
     }
 
+    /**
+     * Loads all placeholder configuration files from the placeholders directory.
+     * If the directory does not exist, it creates it and loads the default configuration.
+     */
     fun loadConfigs() {
         val path = Path.of("${plugin.dataFolder}/placeholders")
         if (!Files.exists(path) || !Files.isDirectory(path)) {
@@ -192,6 +222,13 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
         }
     }
 
+    /**
+     * Loads a placeholder configuration file.
+     *
+     * @param fileName The name of the configuration file to load.
+     * @param placeholders An optional default [PlaceholdersTemplate] instance to write defaults from.
+     * @return [Config] The loaded configuration.
+     */
     fun load(fileName: String, placeholders: PlaceholdersTemplate? = null): Config<PlaceholdersTemplate> {
         val path = Path.of("${plugin.dataFolder}/$fileName")
         return loadConfig<PlaceholdersTemplate> {
@@ -206,10 +243,16 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
         }
     }
 
+    /**
+     * Reloads all loaded placeholder configurations.
+     */
     fun reloadAll() {
         configs.forEach { (_, config) -> config.reload() }
     }
 
+    /**
+     * Saves all loaded placeholder configurations.
+     */
     fun saveAll() {
         configs.forEach { (_, config) -> config.save() }
     }
