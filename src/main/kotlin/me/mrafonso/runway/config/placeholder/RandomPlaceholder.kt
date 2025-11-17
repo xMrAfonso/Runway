@@ -4,8 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-@SerialName("INDEXED")
-data class IndexedPlaceholder(
-    override val group: String? = null,
+@SerialName("RANDOM")
+data class RandomPlaceholder(
     val value: List<String> = mutableListOf()
 ) : Placeholder

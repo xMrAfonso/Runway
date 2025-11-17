@@ -26,7 +26,30 @@ class ProcessHandler(
     private val noItalics = "<!italic>"
 
     /**
-     * Uses `processComponent(String, Player?)` to process the input [Component]
+     * Applies MiniMessage formatting, custom placeholders and parses PlaceholderAPI/MiniPlaceholders.
+     * Also handles prefix requirements and disabling italics according to settings.
+     *
+     * @param input The input [Component] to process.
+     * @return [Component] The processed [Component], or null if the message should be ignored.
+     */
+    fun processComponent(input: Component): Component? {
+        return processComponent(input, null)
+    }
+
+    /**
+     * Applies MiniMessage formatting, custom placeholders and parses PlaceholderAPI/MiniPlaceholders.
+     * Also handles prefix requirements and disabling italics according to settings.
+     *
+     * @param input The input [String] to process.
+     * @return [Component] The processed [Component], or null if the message should be ignored.
+     */
+    fun processComponent(input: String): Component? {
+        return processComponent(input, null)
+    }
+
+    /**
+     * Applies MiniMessage formatting, custom placeholders and parses PlaceholderAPI/MiniPlaceholders.
+     * Also handles prefix requirements and disabling italics according to settings.
      *
      * @param input The input [Component] to process.
      * @param player The [Player] to use for PlaceholderAPI/MiniPlaceholders parsing. Can be null.

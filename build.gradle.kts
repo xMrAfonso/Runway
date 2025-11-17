@@ -24,11 +24,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
 
     implementation(kotlin("stdlib"))
     implementation("dev.triumphteam:triumph-cmd-bukkit:2.0.0-BETA-4")
-    implementation("com.github.retrooper:packetevents-spigot:2.9.5")
+    implementation("com.github.retrooper:packetevents-spigot:2.10.1")
     implementation("dev.triumphteam:polaris-yaml:1.0.0-SNAPSHOT")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("ch.andre601:expressionparser:1.6.1")

@@ -1,14 +1,12 @@
 package me.mrafonso.runway
 
 import com.github.retrooper.packetevents.PacketEvents
+import dev.triumphteam.cmd.bukkit.BukkitCommandManager
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
+import me.mrafonso.runway.command.RunwayCommand
 import me.mrafonso.runway.config.Lang
 import me.mrafonso.runway.config.Settings
-import me.mrafonso.runway.handler.ConfigHandler
-import me.mrafonso.runway.handler.HookHandler
-import me.mrafonso.runway.handler.MigrationHandler
-import me.mrafonso.runway.handler.ProcessHandler
-import me.mrafonso.runway.handler.ResolverHandler
+import me.mrafonso.runway.handler.*
 import me.mrafonso.runway.listeners.SystemChatListener
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -53,6 +51,8 @@ class Runway : JavaPlugin() {
         )
         PacketEvents.getAPI().init()
 
+        val commandManager = BukkitCommandManager.create(this)
+        commandManager.registerCommand(RunwayCommand(configHandler, resolverHandler, processHandler))
         logger.info("Runway enabled!")
     }
 

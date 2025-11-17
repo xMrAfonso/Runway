@@ -7,12 +7,12 @@ import dev.triumphteam.polaris.loadConfig
 import dev.triumphteam.polaris.yaml.Yaml
 import io.github.miniplaceholders.api.MiniPlaceholders
 import me.mrafonso.runway.Runway
-import me.mrafonso.runway.config.placeholder.ConditionalPlaceholder
+import me.mrafonso.runway.config.placeholder.conditional.ConditionalPlaceholder
 import me.mrafonso.runway.config.placeholder.Group
-import me.mrafonso.runway.config.placeholder.IndexedPlaceholder
 import me.mrafonso.runway.config.placeholder.NumberPlaceholder
 import me.mrafonso.runway.config.placeholder.Placeholder
-import me.mrafonso.runway.config.placeholder.PlaceholdersTemplate
+import me.mrafonso.runway.config.placeholder.RandomPlaceholder
+import me.mrafonso.runway.config.placeholder.conditional.MatchPlaceholder
 import me.mrafonso.runway.config.placeholder.TextPlaceholder
 import net.kyori.adventure.pointer.Pointered
 import net.kyori.adventure.text.Component
@@ -25,29 +25,21 @@ import java.nio.file.Path
 
 class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
 
-    private val configs: MutableMap<String, Config<PlaceholdersTemplate>> = mutableMapOf()
-    private val groups: MutableMap<String, Group> = mutableMapOf()
+    private val groups: MutableMap<String, Config<Group>> = mutableMapOf()
     var resolver: TagResolver = TagResolver.empty()
     private val miniMessage = MiniMessage.miniMessage()
     private val expressionParser = DefaultExpressionParserEngine.createDefault()
 
+    fun reloadAll() {
+        reloadGroupFiles()
+        loadPlaceholders()
+    }
+
     fun loadPlaceholders() {
-        loadGroups()
         resolver = buildTagResolver()
 
         if (hookHandler.miniPlaceholders) {
             resolver = TagResolver.resolver(resolver, MiniPlaceholders.audienceGlobalPlaceholders())
-        }
-    }
-
-    private fun loadGroups() {
-        configs.values.map { it.get() }.forEach { config ->
-            config.groups.forEach { (key, group) ->
-                if (groups.containsKey(key)) {
-                    plugin.logger.warning("Group '$key' is defined multiple times, overwriting previous definition")
-                }
-                groups[key] = group
-            }
         }
     }
 
@@ -59,19 +51,18 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
     private fun buildTagResolver(): TagResolver {
         val builder = TagResolver.builder()
 
-        configs.values.map { it.get() }.forEach { config ->
-            config.placeholders.forEach { (key, placeholder) ->
-                val prefix = resolvePrefix(key, placeholder)
+        groups.values.map { it.get() }.forEach { group ->
+            println("Loading placeholder group: ${group.prefix}")
+            group.placeholders.forEach { (key, placeholder) ->
+                println(" - Loading placeholder: $key")
+                val prefix = resolvePrefix(key, group)
+                println(" - Loading placeholder prefix: $prefix")
 
-                if (placeholder is IndexedPlaceholder) {
-                    handleIndexedPlaceholder(builder, prefix, placeholder)
-                    return@forEach
-                }
-
+                println("-- Creating resolver for placeholder with key: $prefix")
                 builder.resolver(TagResolver.resolver(prefix.lowercase()) { _, context ->
                     val target = context.target()
-                    println(prefix)
-                    createTagForPlaceholder(placeholder, target)
+                    println(" - Creating tag for placeholder with target: $target")
+                    createTagForPlaceholder(group, placeholder, target)
                 })
             }
         }
@@ -83,31 +74,22 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
      * Resolves the full placeholder key with group prefix if applicable.
      *
      * @param key The base placeholder key.
-     * @param placeholder The [Placeholder] object containing group information.
+     * @param group The [Group] object containing group information.
      * @return [String] The resolved placeholder key with group prefix if applicable.
      */
-    private fun resolvePrefix(key: String, placeholder: Placeholder): String {
-        val group = placeholder.group?.let { groups[it] }
-
-        if (placeholder.group != null && group == null) {
-            plugin.logger.warning("Placeholder '$key' references a non-existent group '${placeholder.group}'")
-            return key
-        }
-
-        return if (group != null) "${group.prefix}_$key" else key
-    }
-
-    private fun handleIndexedPlaceholder(builder: TagResolver.Builder, prefix: String, placeholder: Placeholder) {
-
+    private fun resolvePrefix(key: String, group: Group): String {
+        return if (group.prefix != null) "${group.prefix}_$key" else key
     }
 
     /**
      * Creates a [Tag] for the given [Placeholder].
      *
+     * @param group The [Group] the placeholder belongs to.
      * @param placeholder The [Placeholder] to create a [Tag] for.
      * @return [Tag] The created [Tag], or null if the placeholder type
      */
-    private fun createTagForPlaceholder(placeholder: Placeholder, target: Pointered?): Tag? {
+    private fun createTagForPlaceholder(group: Group, placeholder: Placeholder, target: Pointered?): Tag? {
+        println("-- Creating tag for placeholder: $placeholder")
         return when (placeholder) {
             is TextPlaceholder -> {
                 target?.let { Tag.selfClosingInserting(miniMessage.deserialize(placeholder.value, target, resolver)) }
@@ -117,7 +99,13 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
                 target?.let { Tag.selfClosingInserting(miniMessage.deserialize(placeholder.value.toString(), target, resolver)) }
                     ?: Tag.selfClosingInserting(miniMessage.deserialize(placeholder.value.toString(), resolver))
             }
-            is ConditionalPlaceholder -> evaluateConditionalPlaceholder(placeholder, target)
+            is ConditionalPlaceholder -> evaluateConditionalPlaceholder(group, placeholder, target)
+            is RandomPlaceholder -> {
+                val randomValue = placeholder.value.random()
+                target?.let { Tag.selfClosingInserting(miniMessage.deserialize(randomValue, target, resolver)) }
+                    ?: Tag.selfClosingInserting(miniMessage.deserialize(randomValue, resolver))
+            }
+            //is MatchPlaceholder -> evaluateMatchPlaceholder(group, placeholder, target)
             else -> null
         }
     }
@@ -125,14 +113,15 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
     /**
      * Evaluates a [ConditionalPlaceholder] and returns the appropriate [Tag] based on the condition.
      *
+     * @param group The [Group] the placeholder belongs to.
      * @param placeholder The [ConditionalPlaceholder] to evaluate.
      * @return [Tag] The resulting [Tag] after evaluating the condition.
      */
-    private fun evaluateConditionalPlaceholder(placeholder: ConditionalPlaceholder, target: Pointered?): Tag {
+    private fun evaluateConditionalPlaceholder(group: Group, placeholder: ConditionalPlaceholder, target: Pointered?): Tag {
         println("- ${placeholder.condition}")
-        println("+ ${placeholder.group}")
+        println("+ ${group.condition}")
         val conditionResult = evaluateExpression(placeholder.condition, target)
-        val groupResult = evaluateGroupCondition(placeholder.group, target)
+        val groupResult = evaluateGroupCondition(group, target)
 
         return when {
             conditionResult && groupResult -> {
@@ -145,6 +134,10 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
             }
             else -> Tag.selfClosingInserting(miniMessage.deserialize("", resolver))
         }
+    }
+
+    private fun evaluateMatchPlaceholder(placeholder: MatchPlaceholder, target: Pointered?): Tag {
+        return TODO("Provide the return value")
     }
 
     /**
@@ -166,11 +159,10 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
     /**
      * Evaluates the condition of a group if it exists.
      *
-     * @param groupName The name of the group to evaluate.
+     * @param group The [Group] whose condition is to be evaluated.
      * @return [Boolean] The result of the group's condition evaluation, or true if no condition exists.
      */
-    private fun evaluateGroupCondition(groupName: String?, target: Pointered?): Boolean {
-        val group = groupName?.let { groups[groupName] } ?: return true
+    private fun evaluateGroupCondition(group: Group, target: Pointered?): Boolean {
         if (group.condition == null) return true
 
         return evaluateExpression(group.condition, target)
@@ -204,7 +196,7 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
         val path = Path.of("${plugin.dataFolder}/placeholders")
         if (!Files.exists(path) || !Files.isDirectory(path)) {
             Files.createDirectory(path)
-            load("placeholders/default.yml", PlaceholdersTemplate()).let { configs["default.yml"] = it }
+            load("placeholders/default.yml", Group.template()).let { groups["default.yml"] = it }
         }
         else {
             val allFiles = Files.walk(path)
@@ -214,7 +206,7 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
 
             allFiles.forEach { fileName ->
                 try {
-                    load("placeholders/$fileName").let { configs[fileName] = it }
+                    load("placeholders/$fileName").let { groups[fileName] = it }
                 } catch (e: Exception) {
                     plugin.logger.warning("Failed to load placeholders from $fileName: ${e.message}")
                 }
@@ -229,12 +221,12 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
      * @param placeholders An optional default [PlaceholdersTemplate] instance to write defaults from.
      * @return [Config] The loaded configuration.
      */
-    fun load(fileName: String, placeholders: PlaceholdersTemplate? = null): Config<PlaceholdersTemplate> {
+    fun load(fileName: String, placeholders: Group? = null): Config<Group> {
         val path = Path.of("${plugin.dataFolder}/$fileName")
-        return loadConfig<PlaceholdersTemplate> {
+        return loadConfig<Group> {
             file = path
             writeDefaults = placeholders != null
-            defaultInstance { PlaceholdersTemplate() }
+            defaultInstance { Group.template() }
             format = Yaml {
                 indentationSize = 2
                 explicitNulls = false
@@ -246,14 +238,14 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
     /**
      * Reloads all loaded placeholder configurations.
      */
-    fun reloadAll() {
-        configs.forEach { (_, config) -> config.reload() }
+    fun reloadGroupFiles() {
+        groups.forEach { (_, config) -> config.reload() }
     }
 
     /**
      * Saves all loaded placeholder configurations.
      */
-    fun saveAll() {
-        configs.forEach { (_, config) -> config.save() }
+    fun savePlaceholders() {
+        groups.forEach { (_, config) -> config.save() }
     }
 }
