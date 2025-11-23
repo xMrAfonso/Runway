@@ -1,8 +1,6 @@
 package me.mrafonso.runway.config.placeholder
 
 import kotlinx.serialization.Serializable
-import me.mrafonso.runway.config.placeholder.conditional.ConditionalPlaceholder
-import me.mrafonso.runway.config.placeholder.conditional.MatchPlaceholder
 
 @Serializable
 data class Group(
@@ -20,11 +18,31 @@ data class Group(
                     "number" to NumberPlaceholder(0.0),
                     "match" to MatchPlaceholder(
                         input = "Maybe",
-                        case = mapOf(
-                            "I don\'t know" to "Result for case 1",
-                            "Maybe" to "Result for case 2"
+                        case = listOf(
+                            CaseData(
+                                comparison = "Yes",
+                                output = "You said yes!"
+                            ),
+                            CaseData(
+                                comparison = "No",
+                                output = "You said no!"
+                            )
                         ),
-                        default = "Default result"
+                        default = "You are undecided."
+                    ),
+                    "switch" to SwitchPlaceholder(
+                        input = "100",
+                        case = listOf(
+                            CaseData(
+                                comparison = "> 100",
+                                output = "Way too much!"
+                            ),
+                            CaseData(
+                                comparison = "< 100",
+                                output = "Not enough!"
+                            )
+                        ),
+                        default = "Balanced like the universe."
                     ),
                     "conditional" to ConditionalPlaceholder(
                         condition = "true",

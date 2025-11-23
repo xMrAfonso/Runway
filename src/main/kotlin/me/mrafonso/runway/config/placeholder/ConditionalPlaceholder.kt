@@ -1,13 +1,14 @@
-package me.mrafonso.runway.config.placeholder.conditional
+package me.mrafonso.runway.config.placeholder
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import me.mrafonso.runway.config.placeholder.Placeholder
 
 @Serializable
 @SerialName("CONDITIONAL")
 data class ConditionalPlaceholder(
     val condition: String,
+
+    @SerialName("if-true")
     val ifTrue: String,
 
     @SerialName("else")

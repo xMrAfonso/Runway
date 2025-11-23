@@ -1,13 +1,12 @@
-package me.mrafonso.runway.config.placeholder.conditional
+package me.mrafonso.runway.config.placeholder
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import me.mrafonso.runway.config.placeholder.Placeholder
 
 @Serializable
-@SerialName("SWITCH")
+@SerialName("MATCH")
 data class MatchPlaceholder(
     val input: String,
-    val case: Map<String, String>,
+    val case: List<CaseData>,
     val default: String
 ) : Placeholder
