@@ -23,7 +23,6 @@ import net.kyori.adventure.text.minimessage.tag.Tag
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.toString
 
 class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
 

@@ -37,7 +37,7 @@ dependencies {
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.0.1")
 
     jmhImplementation(kotlin("stdlib"))
-    jmhImplementation("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    jmhImplementation("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
 
     // JMH
     jmhImplementation("org.openjdk.jmh:jmh-core:1.37")
@@ -64,8 +64,7 @@ tasks {
     }
 
     shadowJar {
-        relocate("com.github.retrooper", "me.mrafonso.shadow.packetevents")
-        relocate("kotlin.reflect", "me.mrafonso.shadow.kotlin-reflect")
+        relocate("com.github.retrooper", "me.mrafonso.runway.shadow.packetevents")
         minimize()
     }
 
