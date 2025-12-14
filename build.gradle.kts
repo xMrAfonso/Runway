@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("xyz.jpenilla.run-paper") version "3.0.1"
+    id("xyz.jpenilla.run-paper") version "3.0.2"
     id("com.gradleup.shadow") version "9.2.2"
     id("org.jetbrains.kotlin.jvm") version "2.2.20"
     id("org.jetbrains.kotlinx.kover") version "0.8.3"
@@ -12,7 +12,6 @@ group = "me.mrafonso"
 version = "2.0.0"
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
     maven { url = uri("https://oss.sonatype.org/content/groups/public/") }
@@ -24,20 +23,20 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
 
     implementation(kotlin("stdlib"))
     implementation("dev.triumphteam:triumph-cmd-bukkit:2.0.0-BETA-4")
-    implementation("com.github.retrooper:packetevents-spigot:2.10.1")
+    implementation("com.github.retrooper:packetevents-spigot:2.11.0")
     implementation("dev.triumphteam:polaris-yaml:1.0.0-SNAPSHOT")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("ch.andre601:expressionparser:1.6.1")
 
-    compileOnly("me.clip:placeholderapi:2.11.6")
-    compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.0.1")
+    compileOnly("me.clip:placeholderapi:2.11.7")
+    compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
 
     jmhImplementation(kotlin("stdlib"))
-    jmhImplementation("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
+    jmhImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
 
     // JMH
     jmhImplementation("org.openjdk.jmh:jmh-core:1.37")
