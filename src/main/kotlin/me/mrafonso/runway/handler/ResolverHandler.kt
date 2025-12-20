@@ -33,6 +33,7 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
 
     fun reloadAll() {
         reloadGroupFiles()
+        loadConfigs()
         loadPlaceholders()
     }
 
@@ -208,7 +209,7 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
      * Loads all placeholder configuration files from the placeholders directory.
      * If the directory does not exist, it creates it and loads the default configuration.
      */
-    fun loadConfigs() {
+    private fun loadConfigs() {
         val path = Path.of("${plugin.dataFolder}/placeholders")
         if (!Files.exists(path) || !Files.isDirectory(path)) {
             println("Placeholders directory not found. Creating default configuration.")

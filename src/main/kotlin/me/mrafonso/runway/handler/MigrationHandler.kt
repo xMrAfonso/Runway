@@ -30,6 +30,19 @@ class MigrationHandler(private val plugin: Runway, private val configHandler: Co
         newConfig.listeners.items = oldConfig.listeners.items
 
         configHandler.save<Settings>()
+
+
+
         return true
+    }
+
+    private fun migratePlaceholders() {
+        val oldPlaceholdersPath = Path.of("${plugin.dataFolder}/placeholders.yml")
+        val newPlaceholdersPath = Path.of("${plugin.dataFolder}/placeholders", "placeholders.yml")
+
+        if (Files.exists(oldPlaceholdersPath)) {
+            Files.createDirectories(newPlaceholdersPath.parent)
+
+        }
     }
 }

@@ -1,6 +1,7 @@
 package me.mrafonso.runway
 
 import com.github.retrooper.packetevents.PacketEvents
+import com.github.retrooper.packetevents.test.base.TestPacketEventsBuilder
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import me.mrafonso.runway.command.RunwayCommand
@@ -8,17 +9,15 @@ import me.mrafonso.runway.config.Lang
 import me.mrafonso.runway.config.Settings
 import me.mrafonso.runway.handler.*
 import me.mrafonso.runway.listeners.SystemChatListener
+import org.bstats.bukkit.Metrics
 import org.bukkit.plugin.java.JavaPlugin
 
 
-class Runway : JavaPlugin() {
+open class Runway : JavaPlugin() {
+    private val METRICS_ID = 28365
 
     override fun onLoad() {
-        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this))
-        PacketEvents.getAPI().settings
-            .reEncodeByDefault(true)
-            .checkForUpdates(false)
-        PacketEvents.getAPI().load()
+        initPacketEvents()
     }
 
     override fun onEnable() {
@@ -28,11 +27,9 @@ class Runway : JavaPlugin() {
         val configHandler = ConfigHandler(this) {
             register<Settings>("settings.yml") { Settings() }
             register<Lang>("lang.yml") { Lang() }
-            //register<Placeholders>("placeholders.yml") { Placeholders() }
         }
 
         val resolverHandler = ResolverHandler(this, hookHandler)
-        resolverHandler.loadConfigs()
         resolverHandler.loadPlaceholders()
 
         val migrationHandler = MigrationHandler(this, configHandler)
@@ -53,11 +50,29 @@ class Runway : JavaPlugin() {
 
         val commandManager = BukkitCommandManager.create(this)
         commandManager.registerCommand(RunwayCommand(configHandler, resolverHandler, processHandler))
+
+        val metrics = Metrics(this, METRICS_ID)
+
         logger.info("Runway enabled!")
     }
 
     override fun onDisable() {
         // Plugin shutdown logic
         logger.info("Runway disabled!")
+    }
+
+    private fun initPacketEvents() {
+        PacketEvents.setAPI(
+            if (isTestingMode()) TestPacketEventsBuilder.buildNoCache(this)
+            else SpigotPacketEventsBuilder.buildNoCache(this)
+        )
+        PacketEvents.getAPI().settings
+            .reEncodeByDefault(true)
+            .checkForUpdates(false)
+        PacketEvents.getAPI().load()
+    }
+
+    private fun isTestingMode(): Boolean {
+        return System.getProperty("runway.testmode").equals("true", true)
     }
 }

@@ -6,6 +6,7 @@ plugins {
     id("org.jetbrains.kotlinx.kover") version "0.8.3"
     kotlin("plugin.serialization") version "2.2.0"
     id("me.champeau.jmh") version "0.7.2"
+    id("io.kotest") version "6.0.7"
 }
 
 group = "me.mrafonso"
@@ -23,22 +24,36 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    fun fullImplementation(dependency: String) {
+        implementation(dependency)
+        testImplementation(dependency)
+    }
+
+    fun fullCompileOnly(dependency: String) {
+        compileOnly(dependency)
+        testImplementation(dependency)
+    }
 
     implementation(kotlin("stdlib"))
-    implementation("dev.triumphteam:triumph-cmd-bukkit:2.0.0-BETA-4")
-    implementation("com.github.retrooper:packetevents-spigot:2.11.0")
-    implementation("dev.triumphteam:polaris-yaml:1.0.0-SNAPSHOT")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-    implementation("ch.andre601:expressionparser:1.6.1")
+    fullImplementation("dev.triumphteam:triumph-cmd-bukkit:2.0.0-BETA-4")
+    fullImplementation("com.github.retrooper:packetevents-spigot:2.11.0")
+    fullImplementation("dev.triumphteam:polaris-yaml:1.0.0-SNAPSHOT")
+    fullImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    fullImplementation("ch.andre601:expressionparser:1.6.1")
+    fullImplementation("org.bstats:bstats-bukkit:3.1.0")
 
-    compileOnly("me.clip:placeholderapi:2.11.7")
-    compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
+    fullCompileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
+    fullCompileOnly("me.clip:placeholderapi:2.11.7")
+    fullCompileOnly("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
 
-    jmhImplementation(kotlin("stdlib"))
-    jmhImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    // Testing specific
+    testImplementation("io.kotest:kotest-assertions-core:6.0.7")
+    testImplementation("io.kotest:kotest-runner-junit5:6.0.7")
+    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.98.0")
 
     // JMH
+    jmhImplementation(kotlin("stdlib"))
+    jmhImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     jmhImplementation("org.openjdk.jmh:jmh-core:1.37")
     jmhAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:1.37")
 }
@@ -64,6 +79,7 @@ tasks {
 
     shadowJar {
         relocate("com.github.retrooper", "me.mrafonso.runway.shadow.packetevents")
+        relocate("org.bstats", "me.mrafonso.runway.shadow.bstats")
         minimize()
     }
 
@@ -77,5 +93,9 @@ tasks {
 
     compileJava {
         options.encoding = "UTF-8"
+    }
+
+    test {
+        useJUnitPlatform()
     }
 }
