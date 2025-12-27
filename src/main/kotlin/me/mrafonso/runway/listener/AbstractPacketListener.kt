@@ -3,8 +3,8 @@ package me.mrafonso.runway.listener
 import com.github.retrooper.packetevents.event.PacketListenerPriority
 import com.github.retrooper.packetevents.event.SimplePacketListenerAbstract
 import com.github.retrooper.packetevents.event.simple.PacketPlaySendEvent
-import me.mrafonso.runway.handler.ConfigHandler
-import me.mrafonso.runway.handler.ProcessHandler
+import me.mrafonso.runway.config.ConfigHandler
+import me.mrafonso.runway.processing.ProcessHandler
 import net.kyori.adventure.text.minimessage.MiniMessage
 
 open class AbstractPacketListener(

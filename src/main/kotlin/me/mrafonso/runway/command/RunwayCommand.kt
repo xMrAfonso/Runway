@@ -5,9 +5,9 @@ import dev.triumphteam.cmd.core.annotations.Command
 import dev.triumphteam.cmd.core.annotations.Join
 import me.mrafonso.runway.config.Lang
 import me.mrafonso.runway.config.Settings
-import me.mrafonso.runway.handler.ConfigHandler
-import me.mrafonso.runway.handler.ProcessHandler
-import me.mrafonso.runway.handler.ResolverHandler
+import me.mrafonso.runway.config.ConfigHandler
+import me.mrafonso.runway.processing.ProcessHandler
+import me.mrafonso.runway.resolver.ResolverHandler
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import org.bukkit.command.CommandSender

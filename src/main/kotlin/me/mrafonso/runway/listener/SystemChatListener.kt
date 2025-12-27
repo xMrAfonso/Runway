@@ -4,10 +4,11 @@ import com.github.retrooper.packetevents.event.simple.PacketPlaySendEvent
 import com.github.retrooper.packetevents.protocol.packettype.PacketType
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSystemChatMessage
 import me.mrafonso.runway.config.Settings
-import me.mrafonso.runway.handler.ConfigHandler
-import me.mrafonso.runway.handler.ProcessHandler
+import me.mrafonso.runway.config.ConfigHandler
+import me.mrafonso.runway.processing.ProcessHandler
 import me.mrafonso.runway.listener.AbstractPacketListener
 import org.bukkit.entity.Player
+import java.awt.TextComponent
 
 class SystemChatListener(processHandler: ProcessHandler, configHandler: ConfigHandler) :
     AbstractPacketListener(processHandler, configHandler) {
@@ -22,17 +23,18 @@ class SystemChatListener(processHandler: ProcessHandler, configHandler: ConfigHa
         val player = e.getPlayer<Player?>()
         val packet = WrapperPlayServerSystemChatMessage(e)
 
-//        if (message.startsWith("<lang:multiplayer.message_not_delivered:")) {
-//            e.setCancelled(true)
-//            return
-//        }
-//
-//        if (message.contains("[actionbar]")) {
-//            message = message.replace("[actionbar]", "")
-//            e.setCancelled(true)
-//            player.sendActionBar(handler.processComponent(message, player)!!)
-//        } else {
-        packet.message = handler.processComponent(packet.message, player) ?: return
-//        }
+        val text = mm.serialize(packet.message)
+
+        if (text.startsWith("<lang:multiplayer.message_not_delivered:")) {
+            e.isCancelled = true
+            return
+        }
+
+        packet.message = handler.processComponent(text, player) ?: return
+
+        if (settings.prefix.required) text.drop(settings.prefix.value.length)
+        if (text.contains("\\<silent>")) {
+            e.isCancelled = true
+        }
     }
 }

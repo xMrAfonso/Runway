@@ -1,10 +1,9 @@
-package me.mrafonso.runway.handler
+package me.mrafonso.runway.config
 
 import dev.triumphteam.polaris.Config
 import dev.triumphteam.polaris.loadConfig
 import dev.triumphteam.polaris.yaml.Yaml
 import me.mrafonso.runway.Runway
-import me.mrafonso.runway.config.Settings
 import java.nio.file.Files
 import java.nio.file.Path
 

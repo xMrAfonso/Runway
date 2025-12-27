@@ -1,4 +1,4 @@
-package me.mrafonso.runway.config.migration
+package me.mrafonso.runway.migration.config
 
 import kotlinx.serialization.Serializable
 

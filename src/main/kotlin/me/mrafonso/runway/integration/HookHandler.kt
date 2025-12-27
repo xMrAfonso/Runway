@@ -1,4 +1,4 @@
-package me.mrafonso.runway.handler
+package me.mrafonso.runway.integration
 
 import me.mrafonso.runway.Runway
 import org.bukkit.Bukkit

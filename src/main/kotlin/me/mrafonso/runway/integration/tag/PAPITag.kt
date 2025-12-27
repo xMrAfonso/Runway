@@ -1,4 +1,4 @@
-package me.mrafonso.runway.resolver
+package me.mrafonso.runway.integration.tag
 
 import me.clip.placeholderapi.PlaceholderAPI
 import net.kyori.adventure.text.Component
@@ -8,9 +8,8 @@ import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.entity.Player
-import java.util.function.BiFunction
 
-class PAPITagResolver {
+class PAPITag : AbstractTag() {
     /**
      * A TagResolver that integrates with PlaceholderAPI to replace placeholders in MiniMessage format.
      *
@@ -25,14 +24,16 @@ class PAPITagResolver {
      *
      * Credits to mbaxter for the original code.
      */
-    fun papiTag(player: Player): TagResolver {
-        return TagResolver.resolver("papi", BiFunction { argumentQueue: ArgumentQueue?, context: Context? ->
+    override fun retrieve(): TagResolver {
+        return TagResolver.resolver(setOf("papi", "placeholderapi")) { argumentQueue, context ->
             val papiPlaceholder = argumentQueue!!.popOr("papi tag requires an argument").value()
+            val player = context.target() as? Player
 
             val parsedPlaceholder = PlaceholderAPI.setPlaceholders(player, "%$papiPlaceholder%")
 
-            val componentPlaceholder: Component = LegacyComponentSerializer.legacySection().deserialize(parsedPlaceholder)
+            val componentPlaceholder: Component =
+                LegacyComponentSerializer.legacySection().deserialize(parsedPlaceholder)
             Tag.selfClosingInserting(componentPlaceholder)
-        })
+        }
     }
 }

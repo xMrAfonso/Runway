@@ -1,8 +1,9 @@
-package me.mrafonso.runway.handler
+package me.mrafonso.runway.migration
 
 import me.mrafonso.runway.Runway
+import me.mrafonso.runway.config.ConfigHandler
 import me.mrafonso.runway.config.Settings
-import me.mrafonso.runway.config.migration.OldConfig
+import me.mrafonso.runway.migration.config.OldConfig
 import java.nio.file.Files
 import java.nio.file.Path
 

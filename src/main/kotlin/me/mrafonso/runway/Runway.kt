@@ -5,10 +5,14 @@ import com.github.retrooper.packetevents.test.base.TestPacketEventsBuilder
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import me.mrafonso.runway.command.RunwayCommand
+import me.mrafonso.runway.config.ConfigHandler
 import me.mrafonso.runway.config.Lang
 import me.mrafonso.runway.config.Settings
-import me.mrafonso.runway.handler.*
+import me.mrafonso.runway.processing.*
+import me.mrafonso.runway.integration.HookHandler
 import me.mrafonso.runway.listeners.SystemChatListener
+import me.mrafonso.runway.migration.MigrationHandler
+import me.mrafonso.runway.resolver.ResolverHandler
 import org.bstats.bukkit.Metrics
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -29,9 +33,6 @@ open class Runway : JavaPlugin() {
             register<Lang>("lang.yml") { Lang() }
         }
 
-        val resolverHandler = ResolverHandler(this, hookHandler)
-        resolverHandler.loadPlaceholders()
-
         val migrationHandler = MigrationHandler(this, configHandler)
         logger.info("Attempting to convert old configurations to new formats...")
         if (migrationHandler.migrate()) {
@@ -39,6 +40,9 @@ open class Runway : JavaPlugin() {
         } else {
             logger.info("No old configuration files found to migrate.")
         }
+
+        val resolverHandler = ResolverHandler(this, hookHandler)
+        resolverHandler.reloadAll()
 
         val processHandler = ProcessHandler(hookHandler, configHandler, resolverHandler)
 
