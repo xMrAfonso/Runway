@@ -1,4 +1,4 @@
-package com.github.retrooper.packetevents.test.base
+package me.mrafonso.runway.util
 
 import com.github.retrooper.packetevents.PacketEvents
 import com.github.retrooper.packetevents.PacketEventsAPI
@@ -75,6 +75,7 @@ object TestPacketEventsBuilder {
             private var initialized = false
             private var terminated = false
 
+            @Suppress("UnstableApiUsage")
             override fun load() {
                 if (!loaded) {
                     //Resolve server version and cache

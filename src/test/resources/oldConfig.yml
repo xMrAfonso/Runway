@@ -1,0 +1,20 @@
+require-prefix:
+  minimessage: false
+  placeholders: true
+
+placeholder-hook:
+  placeholder-api: true
+  mini-placeholders: true
+
+disable-italics: true
+ignore-legacy: true
+
+listeners:
+  system-messages: true
+  tablist: true
+  titles: true
+  scoreboards: true
+  inventory:
+    title: true
+    items: true
+  items: true

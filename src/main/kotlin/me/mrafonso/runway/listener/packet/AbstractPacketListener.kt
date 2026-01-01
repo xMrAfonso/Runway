@@ -1,4 +1,4 @@
-package me.mrafonso.runway.listener
+package me.mrafonso.runway.listener.packet
 
 import com.github.retrooper.packetevents.event.PacketListenerPriority
 import com.github.retrooper.packetevents.event.SimplePacketListenerAbstract

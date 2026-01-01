@@ -1,5 +1,7 @@
 package me.mrafonso.runway.resolver
 
+import net.kyori.adventure.pointer.Pointered
+import net.kyori.adventure.text.Component
 import me.mrafonso.runway.config.placeholder.ConditionalPlaceholder
 import me.mrafonso.runway.config.placeholder.Group
 import me.mrafonso.runway.config.placeholder.MatchPlaceholder
@@ -8,8 +10,6 @@ import me.mrafonso.runway.config.placeholder.Placeholder
 import me.mrafonso.runway.config.placeholder.RandomPlaceholder
 import me.mrafonso.runway.config.placeholder.SwitchPlaceholder
 import me.mrafonso.runway.config.placeholder.TextPlaceholder
-import net.kyori.adventure.pointer.Pointered
-import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.tag.Tag
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 
@@ -57,11 +57,11 @@ class TagResolverBuilder(
     }
 
     /**
-     * Creates a [net.kyori.adventure.text.minimessage.tag.Tag] for the given [me.mrafonso.runway.config.placeholder.Placeholder].
+     * Creates a [Tag] for the given [Placeholder].
      *
      * @param group The [Group] the placeholder belongs to.
-     * @param placeholder The [me.mrafonso.runway.config.placeholder.Placeholder] to create a [net.kyori.adventure.text.minimessage.tag.Tag] for.
-     * @return [net.kyori.adventure.text.minimessage.tag.Tag] The created [net.kyori.adventure.text.minimessage.tag.Tag], or null if the placeholder type
+     * @param placeholder The [Placeholder] to create a [Tag] for.
+     * @return [Tag] The created [Tag], or null if the placeholder type
      */
     private fun parseTagForPlaceholder(group: Group, placeholder: Placeholder, target: Pointered?): Tag? {
         println("-- Creating tag for placeholder: $placeholder")

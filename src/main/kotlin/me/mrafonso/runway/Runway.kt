@@ -10,14 +10,17 @@ import me.mrafonso.runway.config.Lang
 import me.mrafonso.runway.config.Settings
 import me.mrafonso.runway.processing.*
 import me.mrafonso.runway.integration.HookHandler
-import me.mrafonso.runway.listeners.SystemChatListener
+import me.mrafonso.runway.listener.ChatListener
+import me.mrafonso.runway.listener.packet.SystemChatPacketListener
 import me.mrafonso.runway.migration.MigrationHandler
 import me.mrafonso.runway.resolver.ResolverHandler
+import me.mrafonso.runway.util.registerEvents
 import org.bstats.bukkit.Metrics
 import org.bukkit.plugin.java.JavaPlugin
 
 open class Runway : JavaPlugin() {
     private val METRICS_ID = 28365
+    lateinit var configHandler: ConfigHandler
 
     /**
      * Called when the plugin is first loaded by the server.
@@ -35,10 +38,11 @@ open class Runway : JavaPlugin() {
      */
     override fun onEnable() {
         val hookHandler = initHookHandler()
-        val configHandler = initConfigHandler()
+        configHandler = initConfigHandler()
         val handlers = initResolverHandler(hookHandler, configHandler)
 
         initMigration(configHandler)
+        initListeners(handlers.second, configHandler)
         initPacketListeners(configHandler, handlers)
         initPacketEvents()
         initCommandManager(configHandler, handlers)
@@ -75,6 +79,13 @@ open class Runway : JavaPlugin() {
      */
     private fun initPacketEvents() = PacketEvents.getAPI().init()
 
+    private fun initListeners(processHandler: ProcessHandler, configHandler: ConfigHandler) {
+        val manager = server.pluginManager
+        manager.registerEvents(this,
+            ChatListener(processHandler, configHandler)
+        )
+    }
+
     /**
      * Initializes packet listeners for handling specified events.
      *
@@ -84,7 +95,7 @@ open class Runway : JavaPlugin() {
     private fun initPacketListeners(configHandler: ConfigHandler, handlers: Pair<ResolverHandler, ProcessHandler>) {
         val manager = PacketEvents.getAPI().eventManager
         manager.registerListeners(
-            SystemChatListener(handlers.second, configHandler)
+            SystemChatPacketListener(handlers.second, configHandler)
         )
     }
 

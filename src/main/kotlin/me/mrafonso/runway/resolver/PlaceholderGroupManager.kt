@@ -1,10 +1,9 @@
 package me.mrafonso.runway.resolver
 
 import dev.triumphteam.polaris.Config
-import dev.triumphteam.polaris.loadConfig
-import dev.triumphteam.polaris.yaml.Yaml
 import me.mrafonso.runway.Runway
 import me.mrafonso.runway.config.placeholder.Group
+import me.mrafonso.runway.util.load
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -43,7 +42,7 @@ class PlaceholderGroupManager(private val plugin: Runway) {
         if (!Files.exists(path) || !Files.isDirectory(path)) {
             println("Placeholders directory not found. Creating default configuration.")
             Files.createDirectory(path)
-            groups["default.yml"] = load("placeholders/default.yml", true)
+            groups["default.yml"] = loadGroup("placeholders/default.yml", true)
         } else {
             println("Loading placeholder configuration files from placeholders directory.")
             val allFiles = Files.walk(path)
@@ -53,7 +52,7 @@ class PlaceholderGroupManager(private val plugin: Runway) {
 
             allFiles.forEach { fileName ->
                 try {
-                    groups[fileName] = load("placeholders/$fileName")
+                    groups[fileName] = loadGroup("placeholders/$fileName")
                 } catch (e: Exception) {
                     plugin.logger.warning("Failed to load placeholders from $fileName: ${e.message}")
                 }
@@ -65,21 +64,12 @@ class PlaceholderGroupManager(private val plugin: Runway) {
      * Loads a placeholder configuration file.
      *
      * @param fileName The name of the configuration file to load.
-        * @param writeDefault Whether to write the default configuration if the file does not exist.
+     * @param writeDefault Whether to write the default configuration if the file does not exist.
      * @return [Config] The loaded configuration.
      */
-    fun load(fileName: String, writeDefault: Boolean = false): Config<Group> {
-        val path = Path.of("${plugin.dataFolder}/$fileName")
-        println("Loading placeholders from $fileName")
-        return loadConfig<Group> {
-            file = path
-            writeDefaults = writeDefault
-            defaultInstance { Group.template() }
-            format = Yaml {
-                indentationSize = 2
-                explicitNulls = false
-                encodeDefaults = true
-            }
-        }
+    fun loadGroup(fileName: String, writeDefault: Boolean = false): Config<Group> {
+        return load(plugin, fileName, writeDefault) { Group.template() }
+            ?: throw IllegalStateException("Failed to load placeholder configuration from $fileName")
     }
 }
+

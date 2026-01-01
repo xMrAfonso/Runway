@@ -1,4 +1,4 @@
-package me.mrafonso.runway.listeners
+package me.mrafonso.runway.listener.packet
 
 import com.github.retrooper.packetevents.event.simple.PacketPlaySendEvent
 import com.github.retrooper.packetevents.protocol.packettype.PacketType
@@ -6,11 +6,9 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSy
 import me.mrafonso.runway.config.Settings
 import me.mrafonso.runway.config.ConfigHandler
 import me.mrafonso.runway.processing.ProcessHandler
-import me.mrafonso.runway.listener.AbstractPacketListener
 import org.bukkit.entity.Player
-import java.awt.TextComponent
 
-class SystemChatListener(processHandler: ProcessHandler, configHandler: ConfigHandler) :
+class SystemChatPacketListener(processHandler: ProcessHandler, configHandler: ConfigHandler) :
     AbstractPacketListener(processHandler, configHandler) {
 
     override fun onPacketPlaySend(e: PacketPlaySendEvent) {

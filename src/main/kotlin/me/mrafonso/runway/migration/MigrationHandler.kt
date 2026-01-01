@@ -4,14 +4,16 @@ import me.mrafonso.runway.Runway
 import me.mrafonso.runway.config.ConfigHandler
 import me.mrafonso.runway.config.Settings
 import me.mrafonso.runway.migration.config.OldConfig
+import me.mrafonso.runway.util.load
 import java.nio.file.Files
 import java.nio.file.Path
 
 class MigrationHandler(private val plugin: Runway, private val configHandler: ConfigHandler) {
 
     fun migrate(): Boolean {
+        if (plugin.dataFolder.resolve("config.yml").exists().not()) return false
 
-        val oldConfig = configHandler.load<OldConfig>("config.yml")?.get() ?: return false
+        val oldConfig = load<OldConfig>(plugin, "config.yml", false)?.get() ?: return false
         val newConfig = configHandler.get<Settings>()
 
         // Migrate requirePrefix
@@ -31,9 +33,6 @@ class MigrationHandler(private val plugin: Runway, private val configHandler: Co
         newConfig.listeners.items = oldConfig.listeners.items
 
         configHandler.save<Settings>()
-
-
-
         return true
     }
 
