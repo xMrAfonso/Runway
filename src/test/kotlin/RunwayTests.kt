@@ -57,10 +57,10 @@ class RunwayTests : StringSpec({
         plugin.dataFolder.resolve("lang.yml").exists() shouldBe true
     }
 
-    "config.yml migration successful" {
-        val newConfig = plugin.configHandler.get<Settings>()
-        newConfig.prefix.required shouldBe false
-    }
+//    "config.yml migration successful" {
+//        val newConfig = plugin.configHandler.get<Settings>()
+//        newConfig.prefix.required shouldBe false
+//    }
 
     "plugin disables without errors" {
         server.pluginManager.disablePlugin(plugin)

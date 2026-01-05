@@ -11,7 +11,11 @@ import me.mrafonso.runway.config.Settings
 import me.mrafonso.runway.processing.*
 import me.mrafonso.runway.integration.HookHandler
 import me.mrafonso.runway.listener.ChatListener
+import me.mrafonso.runway.listener.packet.InventoryPacketListener
+import me.mrafonso.runway.listener.packet.ItemPacketListener
+import me.mrafonso.runway.listener.packet.ScoreboardPacketListener
 import me.mrafonso.runway.listener.packet.SystemChatPacketListener
+import me.mrafonso.runway.listener.packet.TablistPacketListener
 import me.mrafonso.runway.migration.MigrationHandler
 import me.mrafonso.runway.resolver.ResolverHandler
 import me.mrafonso.runway.util.registerEvents
@@ -95,7 +99,11 @@ open class Runway : JavaPlugin() {
     private fun initPacketListeners(configHandler: ConfigHandler, handlers: Pair<ResolverHandler, ProcessHandler>) {
         val manager = PacketEvents.getAPI().eventManager
         manager.registerListeners(
-            SystemChatPacketListener(handlers.second, configHandler)
+            SystemChatPacketListener(handlers.second, configHandler),
+            TablistPacketListener(handlers.second, configHandler),
+            InventoryPacketListener(handlers.second, configHandler),
+            ItemPacketListener(handlers.second, configHandler),
+            ScoreboardPacketListener(handlers.second, configHandler)
         )
     }
 

@@ -66,12 +66,12 @@ class TagResolverBuilder(
     private fun parseTagForPlaceholder(group: Group, placeholder: Placeholder, target: Pointered?): Tag? {
         println("-- Creating tag for placeholder: $placeholder")
         return when (placeholder) {
-            is TextPlaceholder -> Tag.selfClosingInserting(deserialize(placeholder.value, target))
-            is NumberPlaceholder -> Tag.selfClosingInserting(deserialize(placeholder.value.toString(), target))
+            is TextPlaceholder -> Tag.inserting(deserialize(placeholder.value, target))
+            is NumberPlaceholder -> Tag.inserting(deserialize(placeholder.value.toString(), target))
             is ConditionalPlaceholder -> evaluator.evaluateConditional(group, placeholder, target, deserialize)
-            is RandomPlaceholder -> Tag.selfClosingInserting(deserialize(placeholder.value.random(), target))
+            is RandomPlaceholder -> Tag.inserting(deserialize(placeholder.value.random(), target))
             is MatchPlaceholder -> evaluator.evaluateMatch(placeholder, target, deserialize)
             is SwitchPlaceholder -> evaluator.evaluateSwitch(placeholder, target, deserialize)
-        }
+       }
     }
 }

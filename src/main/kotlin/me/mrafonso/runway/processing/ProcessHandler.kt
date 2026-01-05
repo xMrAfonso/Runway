@@ -34,32 +34,11 @@ class ProcessHandler(
      * Also handles prefix requirements and disabling italics according to settings.
      *
      * @param input The input [Component] to process.
-     * @return [Component] The processed [Component], or null if the message should be ignored.
-     */
-    fun processComponent(input: Component): Component? {
-        return processComponent(input, null)
-    }
-
-    /**
-     * Applies MiniMessage formatting, custom placeholders and parses PlaceholderAPI/MiniPlaceholders.
-     * Also handles prefix requirements and disabling italics according to settings.
-     *
-     * @param input The input [String] to process.
-     * @return [Component] The processed [Component], or null if the message should be ignored.
-     */
-    fun processComponent(input: String): Component? {
-        return processComponent(input, null)
-    }
-
-    /**
-     * Applies MiniMessage formatting, custom placeholders and parses PlaceholderAPI/MiniPlaceholders.
-     * Also handles prefix requirements and disabling italics according to settings.
-     *
-     * @param input The input [Component] to process.
      * @param player The [Player] to use for PlaceholderAPI/MiniPlaceholders parsing. Can be null.
      * @return [Component] The processed [Component], or null if the message should be ignored.
      */
-    fun processComponent(input: Component, player: Player?): Component? {
+    fun processComponent(input: Component?, player: Player? = null): Component? {
+        if (input == null) return null
         return processComponent(miniMessage.serialize(input), player)
     }
 
@@ -71,7 +50,7 @@ class ProcessHandler(
      * @param player The [Player] to use for PlaceholderAPI/MiniPlaceholders parsing. Can be null.
      * @return [Component] The processed [Component], or null if the message should be ignored.
      */
-    fun processComponent(input: String, player: Player?): Component? {
+    fun processComponent(input: String, player: Player? = null): Component? {
         val settings = configHandler.get<Settings>()
         val requirePrefix = settings.prefix.required
         val prefix = settings.prefix.value

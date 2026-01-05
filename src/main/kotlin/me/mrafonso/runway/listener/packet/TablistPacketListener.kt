@@ -22,7 +22,7 @@ class TablistPacketListener(processHandler: ProcessHandler, configHandler: Confi
         val player = e.getPlayer<Player?>()
         val packet = WrapperPlayServerPlayerListHeaderAndFooter(e)
 
-        packet.footer = handler.processComponent(packet.footer, player);
-        packet.header = handler.processComponent(packet.header, player);
+        handler.processComponent(packet.footer, player)?.let { packet.footer = it }
+        handler.processComponent(packet.header, player)?.let { packet.header = it }
     }
 }

@@ -4,10 +4,12 @@ import com.github.retrooper.packetevents.event.simple.PacketPlaySendEvent
 import com.github.retrooper.packetevents.protocol.packettype.PacketType
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDisplayScoreboard
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerScoreboardObjective
-import me.mrafonso.runway.config.Settings
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateScore
 import me.mrafonso.runway.config.ConfigHandler
+import me.mrafonso.runway.config.Settings
 import me.mrafonso.runway.processing.ProcessHandler
 import org.bukkit.entity.Player
+
 
 class ScoreboardPacketListener(processHandler: ProcessHandler, configHandler: ConfigHandler) :
     AbstractPacketListener(processHandler, configHandler) {
@@ -19,6 +21,7 @@ class ScoreboardPacketListener(processHandler: ProcessHandler, configHandler: Co
             e.packetType != PacketType.Play.Server.DISPLAY_SCOREBOARD
         ) return
 
+        println("${e.packetType}")
         val settings = configHandler.get<Settings>()
         if (!settings.listeners.scoreboards) return
 
@@ -26,16 +29,26 @@ class ScoreboardPacketListener(processHandler: ProcessHandler, configHandler: Co
 
         when (e.packetType) {
             PacketType.Play.Server.SCOREBOARD_OBJECTIVE -> {
+                println("1")
                 val packet = WrapperPlayServerScoreboardObjective(e)
-                packet.displayName = handler.processComponent(packet.displayName, player) ?: return
+                handler.processComponent(packet.displayName, player)?.let { packet.displayName = it }
             }
 
+            PacketType.Play.Server.UPDATE_SCORE -> {
+                println("4")
+                val packet = WrapperPlayServerUpdateScore(e)
+                handler.processComponent(packet.entityDisplayName, player)?.let { packet.entityDisplayName = it }
+            }
             PacketType.Play.Server.DISPLAY_SCOREBOARD -> {
+                println("2")
                 val packet = WrapperPlayServerDisplayScoreboard(e)
                 packet.scoreName = "testing"
             }
 
-            else -> return
+            else -> {
+                println("3")
+                return
+            }
         }
     }
 }

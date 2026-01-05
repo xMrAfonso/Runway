@@ -30,6 +30,7 @@ class SystemChatPacketListener(processHandler: ProcessHandler, configHandler: Co
 
         packet.message = handler.processComponent(text, player) ?: return
 
+        println("test")
         if (settings.prefix.required) text.drop(settings.prefix.value.length)
         if (text.contains("\\<silent>")) {
             e.isCancelled = true

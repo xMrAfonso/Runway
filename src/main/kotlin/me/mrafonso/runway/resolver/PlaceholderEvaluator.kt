@@ -36,7 +36,7 @@ class PlaceholderEvaluator(
             else -> ""
         }
 
-        return Tag.selfClosingInserting(deserialize(output, target))
+        return Tag.inserting(deserialize(output, target))
     }
 
     /**
@@ -54,7 +54,7 @@ class PlaceholderEvaluator(
         }
 
         val output = match?.output ?: placeholder.default
-        return Tag.selfClosingInserting(deserialize(output, target))
+        return Tag.inserting(deserialize(output, target))
     }
 
     /**
@@ -69,7 +69,7 @@ class PlaceholderEvaluator(
         }
 
         val output = match?.output ?: placeholder.default
-        return Tag.selfClosingInserting(deserialize(output, target))
+        return Tag.inserting(deserialize(output, target))
     }
 
     /**

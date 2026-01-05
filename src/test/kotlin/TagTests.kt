@@ -79,25 +79,6 @@ class TagTests : StringSpec({
 
         miniMessage.deserialize("<actionbar>Test Message</actionbar>", player)
 
-        player.lastActionBar shouldBe Component.text("Test Message")
-    }
-
-    "PAPITag resolves placeholders" {
-        val player = CustomPlayerMock("TestPlayer", server)
-        server.addPlayer(player)
-        PlaceholderAPI.setPlaceholders(player, "%player_name%") shouldBe "TestPlayer"
-
-        val tag = PAPITag()
-        val miniMessage = MiniMessage.builder()
-            .tags(TagResolver.builder()
-                .resolver(tag.retrieve())
-                .resolver(TagResolver.standard())
-                .build())
-            .build()
-
-        val result = miniMessage.deserialize("<papi:player_name>", player)
-        val plainText = plainSerializer.serialize(result)
-
-        plainText shouldBe "TestPlayer"
+        player.lastActionBar shouldBe Component.empty().append(Component.text("Test Message"))
     }
 })

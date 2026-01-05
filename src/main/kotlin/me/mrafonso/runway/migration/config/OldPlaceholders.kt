@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class OldPlaceholders(
-    val placeholders: Map<String, String> = mutableMapOf()
+    val customPlaceholders: Map<String, String> = mutableMapOf("a" to "b")
 )

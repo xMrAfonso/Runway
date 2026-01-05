@@ -36,7 +36,7 @@ dependencies {
 
     implementation(kotlin("stdlib"))
     fullImplementation("dev.triumphteam:triumph-cmd-bukkit:2.0.0-BETA-4")
-    fullImplementation("com.github.retrooper:packetevents-spigot:2.11.0")
+    fullImplementation("com.github.retrooper:packetevents-spigot:2.11.1")
     fullImplementation("dev.triumphteam:polaris-yaml:1.0.0-SNAPSHOT")
     fullImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     fullImplementation("ch.andre601:expressionparser:1.6.1")
@@ -75,6 +75,13 @@ tasks {
 
     runServer {
         minecraftVersion("1.21.11")
+        javaToolchains {
+            launcherFor {
+                vendor = JvmVendorSpec.JETBRAINS
+                languageVersion.set(JavaLanguageVersion.of(21))
+            }
+            jvmArgs("-XX:+AllowEnhancedClassRedefinition")
+        }
     }
 
     shadowJar {

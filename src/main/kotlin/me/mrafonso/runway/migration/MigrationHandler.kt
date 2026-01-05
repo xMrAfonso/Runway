@@ -3,8 +3,12 @@ package me.mrafonso.runway.migration
 import me.mrafonso.runway.Runway
 import me.mrafonso.runway.config.ConfigHandler
 import me.mrafonso.runway.config.Settings
+import me.mrafonso.runway.config.placeholder.Group
+import me.mrafonso.runway.config.placeholder.TextPlaceholder
 import me.mrafonso.runway.migration.config.OldConfig
+import me.mrafonso.runway.migration.config.OldPlaceholders
 import me.mrafonso.runway.util.load
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -33,16 +37,23 @@ class MigrationHandler(private val plugin: Runway, private val configHandler: Co
         newConfig.listeners.items = oldConfig.listeners.items
 
         configHandler.save<Settings>()
+
+        migratePlaceholders()
         return true
     }
 
     private fun migratePlaceholders() {
         val oldPlaceholdersPath = Path.of("${plugin.dataFolder}/placeholders.yml")
-        val newPlaceholdersPath = Path.of("${plugin.dataFolder}/placeholders", "placeholders.yml")
 
         if (Files.exists(oldPlaceholdersPath)) {
-            Files.createDirectories(newPlaceholdersPath.parent)
+            val oldPlaceholders = load<OldPlaceholders>(plugin, "placeholders.yml", false)?.get() ?: return
 
+            println("-" + oldPlaceholders.customPlaceholders.map { "${it.key}: ${it.value}" })
+            load<Group>(plugin, "placeholders/migrated.yml", true) {
+                Group(
+                    placeholders = oldPlaceholders.customPlaceholders.map { it.key to TextPlaceholder(it.value) }.toMap()
+                )
+            }
         }
     }
 }
