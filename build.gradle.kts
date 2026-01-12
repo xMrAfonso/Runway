@@ -74,6 +74,7 @@ tasks {
     }
 
     runServer {
+        systemProperty("net.kyori.adventure.text.warnWhenLegacyFormattingDetected", false)
         minecraftVersion("1.21.11")
         javaToolchains {
             launcherFor {
