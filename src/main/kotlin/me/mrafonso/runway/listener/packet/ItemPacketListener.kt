@@ -22,6 +22,7 @@ class ItemPacketListener(processHandler: ProcessHandler, configHandler: ConfigHa
         val player = e.getPlayer<Player?>()
         val packet = WrapperPlayServerSetSlot(e)
 
+        println("sus")
         packet.item = handler.processItem(packet.item, player)
     }
 }
