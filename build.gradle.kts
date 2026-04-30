@@ -1,11 +1,11 @@
 plugins {
     id("java")
-    id("xyz.jpenilla.run-paper") version "2.3.1"
-    id("com.gradleup.shadow") version "8.3.5"
+    id("xyz.jpenilla.run-paper") version "3.0.2"
+    id("com.gradleup.shadow") version "9.4.1"
 }
 
 group = "me.mrafonso"
-version = "1.1.9"
+version = "1.2.0"
 
 repositories {
     mavenCentral()
@@ -18,8 +18,10 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    implementation("com.github.retrooper:packetevents-spigot:2.9.3")
+    compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
+    implementation("com.github.retrooper:packetevents-spigot:2.12.1")
+    implementation("org.bstats:bstats-bukkit:3.2.1")
+
     compileOnly("me.clip:placeholderapi:2.11.5")
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:2.2.3")
     compileOnly("com.github.simplix-softworks:simplixstorage:3.2.7")
@@ -27,7 +29,7 @@ dependencies {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 }
 
 tasks.build {
@@ -35,10 +37,13 @@ tasks.build {
 }
 
 tasks.runServer {
-    minecraftVersion("1.21.3")
+    minecraftVersion("26.1.2")
 }
 
 tasks.shadowJar {
+    configurations = project.configurations.runtimeClasspath.map { setOf(it) }
+
+    relocate("org.bstats", "me.mrafonso.shadow.bstats")
     relocate(" com.github.retrooper", "me.mrafonso.shadow.packetevents")
     minimize()
 }
@@ -46,7 +51,7 @@ tasks.shadowJar {
 tasks.processResources {
     val props = mapOf("version" to version)
     inputs.properties(props)
-    outputs.dir("$buildDir/resources")
+    layout.buildDirectory.dir("${layout.buildDirectory}/resources")
     filesMatching("paper-plugin.yml") {
         expand(props)
     }

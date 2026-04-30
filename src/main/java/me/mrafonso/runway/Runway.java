@@ -10,6 +10,7 @@ import me.mrafonso.runway.command.RunwayCommand;
 import me.mrafonso.runway.config.ConfigManager;
 import me.mrafonso.runway.listeners.*;
 import me.mrafonso.runway.util.ProcessHandler;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,6 +33,8 @@ public final class Runway extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        int pluginId = 28365;
+        Metrics metrics = new Metrics(this, pluginId);
         configManager.reload();
 
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") == null) {
