@@ -18,7 +18,7 @@ class SystemChatPacketListener(processHandler: ProcessHandler, configHandler: Co
         val settings = configHandler.get<Settings>()
         if (!settings.listeners.systemMessages) return
 
-        val player = e.getPlayer<Player?>()
+        val player = e.getPlayer<Player>()
         val packet = WrapperPlayServerSystemChatMessage(e)
 
         val text = mm.serialize(packet.message)

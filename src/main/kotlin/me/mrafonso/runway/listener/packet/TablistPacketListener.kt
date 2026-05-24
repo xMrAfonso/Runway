@@ -19,7 +19,7 @@ class TablistPacketListener(processHandler: ProcessHandler, configHandler: Confi
         val settings = configHandler.get<Settings>()
         if (!settings.listeners.tablist) return
 
-        val player = e.getPlayer<Player?>()
+        val player = e.getPlayer<Player>()
         val packet = WrapperPlayServerPlayerListHeaderAndFooter(e)
 
         handler.processComponent(packet.footer, player)?.let { packet.footer = it }

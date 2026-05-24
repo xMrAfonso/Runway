@@ -22,7 +22,7 @@ class TitlePacketListener(processHandler: ProcessHandler, configHandler: ConfigH
         val settings = configHandler.get<Settings>()
         if (!settings.listeners.titles) return
 
-        val player = e.getPlayer<Player?>()
+        val player = e.getPlayer<Player>()
         if (e.packetType == PacketType.Play.Server.SET_TITLE_TEXT) {
             val packet = WrapperPlayServerSetTitleText(e)
             handler.processComponent(packet.title, player)?.let { packet.title = it }

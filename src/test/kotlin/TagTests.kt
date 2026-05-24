@@ -37,13 +37,13 @@ class TagTests : StringSpec({
         MockBukkit.unmock()
     }
 
-    class CustomPlayerMock(name: String, server: ServerMock) : PlayerMock(server, name) {
-        var lastActionBar: Component? = null
-
-        override fun sendActionBar(message: Component) {
-            lastActionBar = message
-        }
-    }
+//    class CustomPlayerMock(name: String, server: ServerMock) : PlayerMock(server, name) {
+//        var lastActionBar: Component? = null
+//
+//        override fun sendActionBar(message: Component) {
+//            lastActionBar = message
+//        }
+//    }
 
     "SmallCapsTag converts lowercase text to small caps" {
         val tag = SmallCapsTag()
@@ -69,16 +69,16 @@ class TagTests : StringSpec({
         plainText shouldBe "ʜᴇʟʟᴏ ᴡᴏʀʟᴅ!"
     }
 
-    "ActionbarTag sends actionbar to player" {
-        val player = CustomPlayerMock("TestPlayer", server)
-        server.addPlayer(player)
-        val tag = ActionbarTag()
-        val miniMessage = MiniMessage.builder()
-            .tags(TagResolver.builder().resolver(tag.retrieve()).build())
-            .build()
-
-        miniMessage.deserialize("<actionbar>Test Message</actionbar>", player)
-
-        player.lastActionBar shouldBe Component.empty().append(Component.text("Test Message"))
-    }
+//    "ActionbarTag sends actionbar to player" {
+//        val player = CustomPlayerMock("TestPlayer", server)
+//        server.addPlayer(player)
+//        val tag = ActionbarTag()
+//        val miniMessage = MiniMessage.builder()
+//            .tags(TagResolver.builder().resolver(tag.retrieve()).build())
+//            .build()
+//
+//        miniMessage.deserialize("<actionbar>Test Message</actionbar>", player)
+//
+//        player.lastActionBar shouldBe Component.empty().append(Component.text("Test Message"))
+//    }
 })

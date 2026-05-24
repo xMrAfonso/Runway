@@ -130,6 +130,7 @@ class ProcessHandler(
             bukkitItem.itemMeta = meta
         }
 
+        println("Processed item: ${bukkitItem.itemMeta?.displayName()} with lore: ${bukkitItem.itemMeta?.lore()}")
         return SpigotConversionUtil.fromBukkitItemStack(bukkitItem)
     }
 

@@ -18,7 +18,7 @@ class InventoryPacketListener(processHandler: ProcessHandler, configHandler: Con
             e.packetType != PacketType.Play.Server.WINDOW_ITEMS) return
 
         val settings = configHandler.get<Settings>()
-        val player = e.getPlayer<Player?>()
+        val player = e.getPlayer<Player>()
 
         if (settings.listeners.inventory.title &&
             e.packetType == PacketType.Play.Server.OPEN_WINDOW) {
@@ -29,7 +29,6 @@ class InventoryPacketListener(processHandler: ProcessHandler, configHandler: Con
         } else if (settings.listeners.inventory.items &&
             e.packetType == PacketType.Play.Server.WINDOW_ITEMS) {
 
-            println("sussy")
             val packet = WrapperPlayServerWindowItems(e)
             packet.items = handler.processItems(packet.items, player)
         }

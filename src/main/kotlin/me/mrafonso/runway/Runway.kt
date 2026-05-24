@@ -13,7 +13,6 @@ import me.mrafonso.runway.integration.HookHandler
 import me.mrafonso.runway.listener.ChatListener
 import me.mrafonso.runway.listener.packet.InventoryPacketListener
 import me.mrafonso.runway.listener.packet.ItemPacketListener
-import me.mrafonso.runway.listener.packet.ScoreboardPacketListener
 import me.mrafonso.runway.listener.packet.SystemChatPacketListener
 import me.mrafonso.runway.listener.packet.TablistPacketListener
 import me.mrafonso.runway.listener.packet.TitlePacketListener
@@ -105,9 +104,7 @@ open class Runway : JavaPlugin() {
             TablistPacketListener(handlers.second, configHandler),
             InventoryPacketListener(handlers.second, configHandler),
             ItemPacketListener(handlers.second, configHandler),
-            ScoreboardPacketListener(handlers.second, configHandler),
             TitlePacketListener(handlers.second, configHandler),
-            ScoreboardPacketListener(handlers.second, configHandler),
             TestPacketListener(handlers.second, configHandler)
         )
     }
