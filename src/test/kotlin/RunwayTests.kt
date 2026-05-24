@@ -63,6 +63,8 @@ class RunwayTests : StringSpec({
         val newConfig = plugin.configHandler.get<Settings>()
         newConfig.prefix.required shouldBe false
         plugin.dataFolder.resolve("settings.yml").exists() shouldBe true
+        plugin.dataFolder.resolve("config.yml").exists() shouldBe false
+        plugin.dataFolder.resolve("old-config.yml").exists() shouldBe true
     }
 
     "placeholders.yml migration successful" {
@@ -71,6 +73,8 @@ class RunwayTests : StringSpec({
         val migratedText = migratedFile.readText()
         migratedText.contains("server_name") shouldBe true
         migratedText.contains("RunwayMC") shouldBe true
+        plugin.dataFolder.resolve("placeholders.yml").exists() shouldBe false
+        plugin.dataFolder.resolve("placeholders").resolve("old-placeholders.yml").exists() shouldBe true
     }
 
     "plugin disables without errors" {
