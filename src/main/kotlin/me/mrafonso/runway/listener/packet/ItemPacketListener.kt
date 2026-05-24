@@ -9,6 +9,7 @@ import io.github.retrooper.packetevents.util.SpigotConversionUtil
 import me.mrafonso.runway.config.ConfigHandler
 import me.mrafonso.runway.config.Settings
 import me.mrafonso.runway.processing.ProcessHandler
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.entity.Player
 
 
@@ -30,14 +31,21 @@ class ItemPacketListener(processHandler: ProcessHandler, configHandler: ConfigHa
             PacketType.Play.Server.SET_SLOT -> {
                 val packet = WrapperPlayServerSetSlot(e)
                 packet.item = handler.processItem(packet.item, player)
+                println(SpigotConversionUtil.toBukkitItemStack(packet.item).itemMeta ?.displayName()
+                    ?.let(PlainTextComponentSerializer.plainText()::serialize))
+
             }
             PacketType.Play.Server.SET_CURSOR_ITEM -> {
                 val packet = WrapperPlayServerSetCursorItem(e)
                 packet.stack = handler.processItem(packet.stack, player)
+                println("-" + SpigotConversionUtil.toBukkitItemStack(packet.stack).itemMeta ?.displayName()
+                    ?.let(PlainTextComponentSerializer.plainText()::serialize))
             }
             else -> {
                 val packet = WrapperPlayServerSetPlayerInventory(e)
                 packet.stack = handler.processItem(packet.stack, player)
+                println("+" + SpigotConversionUtil.toBukkitItemStack(packet.stack).itemMeta ?.displayName()
+                    ?.let(PlainTextComponentSerializer.plainText()::serialize))
             }
         }
 

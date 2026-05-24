@@ -9,13 +9,14 @@ import me.mrafonso.runway.migration.config.OldConfig
 import me.mrafonso.runway.migration.config.OldPlaceholders
 import me.mrafonso.runway.util.load
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 
 class MigrationHandler(private val plugin: Runway, private val configHandler: ConfigHandler) {
 
     fun migrate(): Boolean {
-        if (plugin.dataFolder.resolve("config.yml").exists().not()) return false
+        if (plugin.dataFolder.resolve("settings.yml").exists()) return false
 
         val oldConfig = load<OldConfig>(plugin, "config.yml", false)?.get() ?: return false
         val newConfig = configHandler.get<Settings>()
@@ -48,7 +49,7 @@ class MigrationHandler(private val plugin: Runway, private val configHandler: Co
         if (Files.exists(oldPlaceholdersPath)) {
             val oldPlaceholders = load<OldPlaceholders>(plugin, "placeholders.yml", false)?.get() ?: return
 
-            println("-" + oldPlaceholders.customPlaceholders.map { "${it.key}: ${it.value}" })
+            println("M-" + oldPlaceholders.customPlaceholders.map { "${it.key}: ${it.value}" })
             load<Group>(plugin, "placeholders/migrated.yml", true) {
                 Group(
                     placeholders = oldPlaceholders.customPlaceholders.map { it.key to TextPlaceholder(it.value) }.toMap()

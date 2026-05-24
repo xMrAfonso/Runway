@@ -125,12 +125,21 @@ class ProcessHandler(
     fun processItem(item: ItemStack, player: Player?): ItemStack {
         val bukkitItem = SpigotConversionUtil.toBukkitItemStack(item)
         bukkitItem.itemMeta?.let { meta ->
-            meta.displayName()?.let { meta.displayName(processComponent(it, player)) }
-            meta.lore()?.let { meta.lore(processComponents(it, player)) }
+            meta.displayName()?.let { original ->
+                val processed = processComponent(original, player)
+                if (processed != null) {
+                    meta.displayName(processed)
+                }
+            }
+            meta.lore()?.let { original ->
+                val processed = processComponents(original, player)
+                if (processed.isNotEmpty()) {
+                    meta.lore(processed)
+                }
+            }
             bukkitItem.itemMeta = meta
         }
 
-        println("Processed item: ${bukkitItem.itemMeta?.displayName()} with lore: ${bukkitItem.itemMeta?.lore()}")
         return SpigotConversionUtil.fromBukkitItemStack(bukkitItem)
     }
 
