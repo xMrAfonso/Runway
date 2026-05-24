@@ -1,19 +1,32 @@
 package me.mrafonso.runway.config.placeholder
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Group(
+class Group(
     val prefix: String? = null,
     val condition: String? = null,
-    val placeholders: Map<String, Placeholder> = emptyMap()
+    @SerialName("legacy-placeholders")
+    val legacyPlaceholders: Map<String, String> = emptyMap(),
+    @SerialName("placeholders")
+    val typedPlaceholders: Map<String, Placeholder> = emptyMap()
 ) {
+    constructor(
+        prefix: String? = null,
+        condition: String? = null,
+        placeholders: Map<String, Placeholder>
+    ) : this(prefix, condition, emptyMap(), placeholders)
+
+    val placeholders: Map<String, Placeholder>
+        get() = legacyPlaceholders.mapValues { (_, value) -> TextPlaceholder(value) } + typedPlaceholders
+
     companion object {
         fun template(): Group {
             return Group(
                 prefix = "example",
                 condition = "true",
-                placeholders = mapOf(
+                typedPlaceholders = mapOf(
                     "text" to TextPlaceholder("Hello world!"),
                     "number" to NumberPlaceholder(0.0),
                     "match" to MatchPlaceholder(

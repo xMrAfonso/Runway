@@ -43,10 +43,16 @@ open class Runway : JavaPlugin() {
      */
     override fun onEnable() {
         val hookHandler = initHookHandler()
+        val migrationState = MigrationState(
+            settings = dataFolder.resolve("config.yml").exists() && !dataFolder.resolve("settings.yml").exists(),
+            placeholders = dataFolder.resolve("placeholders.yml").exists() &&
+                    !dataFolder.resolve("placeholders").resolve("migrated.yml").exists()
+        )
         configHandler = initConfigHandler()
-        val handlers = initResolverHandler(hookHandler, configHandler)
 
-        initMigration(configHandler)
+        initMigration(configHandler, migrationState)
+
+        val handlers = initResolverHandler(hookHandler, configHandler)
         initListeners(handlers.second, configHandler)
         initPacketListeners(configHandler, handlers)
         initPacketEvents()
@@ -144,8 +150,13 @@ open class Runway : JavaPlugin() {
      *
      * @param configHandler The configuration handler for accessing settings.
      */
-    private fun initMigration(configHandler: ConfigHandler) {
-        val migrationHandler = MigrationHandler(this, configHandler)
+    private fun initMigration(configHandler: ConfigHandler, migrationState: MigrationState) {
+        val migrationHandler = MigrationHandler(
+            this,
+            configHandler,
+            migrateSettings = migrationState.settings,
+            migratePlaceholders = migrationState.placeholders,
+        )
         logger.info("Attempting to convert old configurations to new formats...")
         if (migrationHandler.migrate()) {
             logger.info("Found old configuration files, migrated them to new format!")
@@ -188,4 +199,9 @@ open class Runway : JavaPlugin() {
     private fun isTestingMode(): Boolean {
         return System.getProperty("runway.testmode").equals("true", true)
     }
+
+    private data class MigrationState(
+        val settings: Boolean,
+        val placeholders: Boolean,
+    )
 }

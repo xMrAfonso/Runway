@@ -20,9 +20,11 @@ class RunwayTests : StringSpec({
         server = MockBukkit.mock()
 
         val sourceFile = File("src/test/resources/oldConfig.yml")
+        val sourcePlaceholdersFile = File("src/main/resources/placeholders.yml")
         val targetFolder = server.pluginsFolder.resolve("Runway-2.0.0")
         targetFolder.mkdirs()
         sourceFile.copyTo(targetFolder.resolve("config.yml"), overwrite = true)
+        sourcePlaceholdersFile.copyTo(targetFolder.resolve("placeholders.yml"), overwrite = true)
 
         System.setProperty("bstats.relocatecheck", "false")
         System.setProperty("runway.testmode", "true")
@@ -57,10 +59,19 @@ class RunwayTests : StringSpec({
         plugin.dataFolder.resolve("lang.yml").exists() shouldBe true
     }
 
-//    "config.yml migration successful" {
-//        val newConfig = plugin.configHandler.get<Settings>()
-//        newConfig.prefix.required shouldBe false
-//    }
+    "config.yml migration successful" {
+        val newConfig = plugin.configHandler.get<Settings>()
+        newConfig.prefix.required shouldBe false
+        plugin.dataFolder.resolve("settings.yml").exists() shouldBe true
+    }
+
+    "placeholders.yml migration successful" {
+        val migratedFile = plugin.dataFolder.resolve("placeholders").resolve("migrated.yml")
+        migratedFile.exists() shouldBe true
+        val migratedText = migratedFile.readText()
+        migratedText.contains("server_name") shouldBe true
+        migratedText.contains("RunwayMC") shouldBe true
+    }
 
     "plugin disables without errors" {
         server.pluginManager.disablePlugin(plugin)
