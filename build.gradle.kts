@@ -49,7 +49,7 @@ dependencies {
     // Testing specific
     testImplementation("io.kotest:kotest-assertions-core:6.1.11")
     testImplementation("io.kotest:kotest-runner-junit5:6.1.11")
-    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.110.0")
+    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v26.1.2:4.113.1")
 
     // JMH
     jmhImplementation(kotlin("stdlib"))

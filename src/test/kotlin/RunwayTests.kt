@@ -25,6 +25,10 @@ class RunwayTests : StringSpec({
         targetFolder.mkdirs()
         sourceFile.copyTo(targetFolder.resolve("config.yml"), overwrite = true)
         sourcePlaceholdersFile.copyTo(targetFolder.resolve("placeholders.yml"), overwrite = true)
+        targetFolder.resolve("placeholders.yml").appendText(
+            System.lineSeparator() +
+                "  server_selector: \"<gradient:#ffff00:#00ffff>SERVER SELECTOR</gradient>\""
+        )
 
         System.setProperty("bstats.relocatecheck", "false")
         System.setProperty("runway.testmode", "true")
@@ -61,7 +65,7 @@ class RunwayTests : StringSpec({
 
     "config.yml migration successful" {
         val newConfig = plugin.configHandler.get<Settings>()
-        newConfig.prefix.required shouldBe false
+        newConfig.prefix.required shouldBe true
         plugin.dataFolder.resolve("settings.yml").exists() shouldBe true
         plugin.dataFolder.resolve("config.yml").exists() shouldBe false
         plugin.dataFolder.resolve("old-config.yml").exists() shouldBe true
@@ -73,8 +77,12 @@ class RunwayTests : StringSpec({
         val migratedText = migratedFile.readText()
         migratedText.contains("server_name") shouldBe true
         migratedText.contains("RunwayMC") shouldBe true
+        migratedText.contains("server_selector") shouldBe true
+        migratedText.contains("<gradient:#ffff00:#00ffff>SERVER SELECTOR</gradient>") shouldBe true
+        migratedText.contains("legacy-placeholders") shouldBe true
+        migratedText.contains("type: TEXT") shouldBe false
         plugin.dataFolder.resolve("placeholders.yml").exists() shouldBe false
-        plugin.dataFolder.resolve("placeholders").resolve("old-placeholders.yml").exists() shouldBe true
+        plugin.dataFolder.resolve("old-placeholders.yml").exists() shouldBe true
     }
 
     "plugin disables without errors" {

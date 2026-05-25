@@ -1,14 +1,20 @@
 package me.mrafonso.runway.config.placeholder
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 @Serializable
 class Group(
     val prefix: String? = null,
     val condition: String? = null,
     @SerialName("legacy-placeholders")
-    val legacyPlaceholders: Map<String, String> = emptyMap(),
+    @Serializable(with = LegacyPlaceholdersSerializer::class)
+    val legacyPlaceholders: Map<String, TextPlaceholder> = emptyMap(),
     @SerialName("placeholders")
     val typedPlaceholders: Map<String, Placeholder> = emptyMap()
 ) {
@@ -19,7 +25,7 @@ class Group(
     ) : this(prefix, condition, emptyMap(), placeholders)
 
     val placeholders: Map<String, Placeholder>
-        get() = legacyPlaceholders.mapValues { (_, value) -> TextPlaceholder(value) } + typedPlaceholders
+        get() = legacyPlaceholders + typedPlaceholders
 
     companion object {
         fun template(): Group {
@@ -65,5 +71,19 @@ class Group(
                 )
             )
         }
+    }
+}
+
+private object LegacyPlaceholdersSerializer : KSerializer<Map<String, TextPlaceholder>> {
+    private val delegate = MapSerializer(String.serializer(), String.serializer())
+
+    override val descriptor = delegate.descriptor
+
+    override fun deserialize(decoder: Decoder): Map<String, TextPlaceholder> {
+        return delegate.deserialize(decoder).mapValues { (_, value) -> TextPlaceholder(value) }
+    }
+
+    override fun serialize(encoder: Encoder, value: Map<String, TextPlaceholder>) {
+        delegate.serialize(encoder, value.mapValues { (_, placeholder) -> placeholder.value })
     }
 }
