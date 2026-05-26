@@ -38,10 +38,25 @@ class TagTests : StringSpec({
         return resolver
     }
 
-    fun renderWithSanitized(input: String, resolver: TagResolver): String {
+    fun customSanitizedResolver(groups: Collection<Group>): TagResolver {
+        lateinit var resolver: TagResolver
+        val evaluator = PlaceholderEvaluator(
+            miniMessage = miniMessage,
+            expressionParser = DefaultExpressionParserEngine.createDefault(),
+            placeholderProcessor = { text, _ -> miniMessage.deserialize(text, resolver) }
+        )
+        val builder = TagResolverBuilder(evaluator) { text: String, _: Pointered? ->
+            miniMessage.deserialize(text, resolver)
+        }
+
+        resolver = builder.buildSanitized(groups)
+        return resolver
+    }
+
+    fun renderWithSanitized(input: String, resolver: TagResolver, sanitizedResolver: TagResolver = TagResolver.empty()): String {
         val splitText = input.split("<sanitized>", limit = 2)
         val before = miniMessage.deserialize(splitText[0], resolver)
-        val after = splitText.getOrNull(1)?.let { miniMessage.deserialize(it) } ?: Component.empty()
+        val after = splitText.getOrNull(1)?.let { miniMessage.deserialize(it, sanitizedResolver) } ?: Component.empty()
         return plainText.serialize(before.append(after))
     }
 
@@ -216,5 +231,22 @@ class TagTests : StringSpec({
             "Before <server><sanitized> After <server> <red>red</red>",
             resolver
         ) shouldBe "Before RunwayMC After <server> red"
+    }
+
+    "sanitized text resolves typed placeholders that opt in" {
+        val groups = listOf(
+            Group(
+                placeholders = mapOf(
+                    "server" to TextPlaceholder("RunwayMC", sanitized = true),
+                    "hidden" to TextPlaceholder("Hidden")
+                )
+            )
+        )
+
+        renderWithSanitized(
+            "Before <hidden><sanitized> After <server> <hidden>",
+            customResolver(groups),
+            customSanitizedResolver(groups)
+        ) shouldBe "Before Hidden After RunwayMC <hidden>"
     }
 })

@@ -19,8 +19,15 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
     private val expressionParser = DefaultExpressionParserEngine.createDefault()
     private val evaluator = PlaceholderEvaluator(miniMessage, expressionParser) { text, player -> processPlaceholders(text, player) }
     private val builder = TagResolverBuilder(evaluator) { text, target -> deserializeWithTarget(text, target) }
+    private val sanitizedEvaluator = PlaceholderEvaluator(miniMessage, expressionParser) { text, player ->
+        processSanitizedPlaceholders(text, player)
+    }
+    private val sanitizedBuilder = TagResolverBuilder(sanitizedEvaluator) { text, target ->
+        deserializeSanitizedWithTarget(text, target)
+    }
 
     var resolver: TagResolver = tagManager.resolver()
+    var sanitizedResolver: TagResolver = TagResolver.empty()
 
     fun reloadAll() {
         groupManager.reloadAll()
@@ -29,10 +36,21 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
 
     fun loadPlaceholders() {
         val groups = groupManager.groups().map { it.get() }
+        sanitizedResolver = sanitizedBuilder.buildSanitized(groups)
         resolver = TagResolver.resolver(builder.build(groups), tagManager.resolver())
 
         if (hookHandler.miniPlaceholders) {
             resolver = TagResolver.resolver(resolver, MiniPlaceholders.audienceGlobalPlaceholders())
+        }
+    }
+
+    fun processSanitizedPlaceholders(text: String, player: Pointered?): Component? {
+        return try {
+            player?.let {
+                miniMessage.deserialize(text, player, sanitizedResolver)
+            } ?: miniMessage.deserialize(text, sanitizedResolver)
+        } catch (_: ParsingException) {
+            null
         }
     }
 
@@ -67,5 +85,10 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
     private fun deserializeWithTarget(text: String, target: Pointered?): Component {
         return target?.let { miniMessage.deserialize(text, target, resolver) }
             ?: miniMessage.deserialize(text, resolver)
+    }
+
+    private fun deserializeSanitizedWithTarget(text: String, target: Pointered?): Component {
+        return target?.let { miniMessage.deserialize(text, target, sanitizedResolver) }
+            ?: miniMessage.deserialize(text, sanitizedResolver)
     }
 }

@@ -8,5 +8,6 @@ import kotlinx.serialization.Serializable
 data class MatchPlaceholder(
     val input: String,
     val case: List<CaseData>,
-    val default: String
+    val default: String,
+    override val sanitized: Boolean = false
 ) : Placeholder

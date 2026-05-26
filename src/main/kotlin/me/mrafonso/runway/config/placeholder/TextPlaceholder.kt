@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("TEXT")
 data class TextPlaceholder(
-    val value: String
+    val value: String,
+    override val sanitized: Boolean = false
 ) : Placeholder

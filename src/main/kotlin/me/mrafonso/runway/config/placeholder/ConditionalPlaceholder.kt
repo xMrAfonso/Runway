@@ -12,5 +12,7 @@ data class ConditionalPlaceholder(
     val ifTrue: String,
 
     @SerialName("else")
-    val ifElse: String? = null
+    val ifElse: String? = null,
+
+    override val sanitized: Boolean = false
 ) : Placeholder

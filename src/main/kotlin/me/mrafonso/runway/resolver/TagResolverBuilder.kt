@@ -24,11 +24,22 @@ class TagResolverBuilder(
      * @return [TagResolver] The constructed [TagResolver] with all custom placeholders registered.
      */
     fun build(groups: Collection<Group>): TagResolver {
+        return build(groups) { group -> group.placeholders }
+    }
+
+    fun buildSanitized(groups: Collection<Group>): TagResolver {
+        return build(groups) { group -> group.typedPlaceholders.filterValues { it.sanitized } }
+    }
+
+    private fun build(
+        groups: Collection<Group>,
+        placeholdersForGroup: (Group) -> Map<String, Placeholder>
+    ): TagResolver {
         val builder = TagResolver.builder()
 
         groups.forEach { group ->
             println("Loading placeholder group: ${group.prefix}")
-            group.placeholders.forEach { (key, placeholder) ->
+            placeholdersForGroup(group).forEach { (key, placeholder) ->
                 println(" - Loading placeholder: $key")
                 val prefix = resolvePrefix(key, group)
                 println(" - Loading placeholder prefix: $prefix")

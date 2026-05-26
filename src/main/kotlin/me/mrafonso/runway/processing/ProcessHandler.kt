@@ -67,7 +67,7 @@ class ProcessHandler(
             input.startsWith("!$prefix")
         ) return null
 
-        val splitText = input.split("<sanitized>")
+        val splitText = input.split("<sanitized>", limit = 2)
 
         // When serializing to MiniMessage, '<' is escaped as '\<', so we need to unescape it
         var text = splitText[0].replace("\\<", "<")
@@ -80,12 +80,16 @@ class ProcessHandler(
             resolver = TagResolver.resolver(resolver, MiniPlaceholders.audienceGlobalPlaceholders())
         }
 
-        var afterText = ""
-        if (splitText.size > 1) afterText = splitText[1]
+        val afterText = splitText.getOrNull(1)
 
         // Apply no italics tag if needed
         if (disableItalics) text = "$noItalics$text"
-        return deserialize(text, player, resolver)?.append(miniMessage.deserialize(afterText))
+        val component = deserialize(text, player, resolver) ?: return null
+        val sanitizedComponent = afterText?.let {
+            deserialize(it, player, resolverHandler.sanitizedResolver) ?: return null
+        } ?: Component.empty()
+
+        return component.append(sanitizedComponent)
     }
 
     /**

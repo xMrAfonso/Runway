@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("NUMBER")
 data class NumberPlaceholder(
-    val value: Double
+    val value: Double,
+    override val sanitized: Boolean = false
 ) : Placeholder

@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("RANDOM")
 data class RandomPlaceholder(
-    val value: List<String> = mutableListOf()
+    val value: List<String> = mutableListOf(),
+    override val sanitized: Boolean = false
 ) : Placeholder
