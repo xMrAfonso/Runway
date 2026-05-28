@@ -2,8 +2,11 @@ package me.mrafonso.runway.integration
 
 import me.mrafonso.runway.integration.tag.AbstractTag
 import me.mrafonso.runway.integration.tag.ActionbarTag
+import me.mrafonso.runway.integration.tag.LowercaseTag
 import me.mrafonso.runway.integration.tag.PAPITag
+import me.mrafonso.runway.integration.tag.PlainTag
 import me.mrafonso.runway.integration.tag.SmallCapsTag
+import me.mrafonso.runway.integration.tag.UppercaseTag
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 
 class TagManager(
@@ -14,7 +17,10 @@ class TagManager(
         register(
             PAPITag(),
             ActionbarTag(),
-            SmallCapsTag()
+            SmallCapsTag(),
+            UppercaseTag(),
+            LowercaseTag(),
+            PlainTag()
         )
     }
 

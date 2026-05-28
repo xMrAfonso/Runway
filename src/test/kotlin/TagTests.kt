@@ -23,6 +23,10 @@ class TagTests : StringSpec({
         return plainText.serialize(miniMessage.deserialize(input, resolver))
     }
 
+    fun serialize(input: String, resolver: TagResolver = TagManager().resolver()): String {
+        return miniMessage.serialize(miniMessage.deserialize(input, resolver))
+    }
+
     fun customResolver(groups: Collection<Group>): TagResolver {
         lateinit var resolver: TagResolver
         val evaluator = PlaceholderEvaluator(
@@ -78,6 +82,40 @@ class TagTests : StringSpec({
 
     "smallcaps tag supports nested minimessage formatting" {
         render("<smallcaps><red>Hello</red> <bold>World</bold></smallcaps>") shouldBe "\u029C\u1D07\u029F\u029F\u1D0F \u1D21\u1D0F\u0280\u029F\u1D05"
+    }
+
+    "uppercase tag converts text" {
+        render("<uppercase>Hello RunwayMC 123</uppercase>") shouldBe "HELLO RUNWAYMC 123"
+    }
+
+    "uppercase alias converts text" {
+        render("<upper>hello</upper>") shouldBe "HELLO"
+    }
+
+    "uppercase tag supports nested minimessage formatting" {
+        render("<uppercase><red>Hello</red> <bold>World</bold></uppercase>") shouldBe "HELLO WORLD"
+        serialize("<uppercase><red>Hello</red></uppercase>") shouldBe "<red>HELLO"
+    }
+
+    "lowercase tag converts text" {
+        render("<lowercase>Hello RunwayMC 123</lowercase>") shouldBe "hello runwaymc 123"
+    }
+
+    "lowercase alias converts text" {
+        render("<lower>HELLO</lower>") shouldBe "hello"
+    }
+
+    "lowercase tag supports nested minimessage formatting" {
+        render("<lowercase><red>Hello</red> <bold>World</bold></lowercase>") shouldBe "hello world"
+        serialize("<lowercase><red>Hello</red></lowercase>") shouldBe "<red>hello"
+    }
+
+    "plain tag preserves visible text" {
+        render("<plain><red>Hello</red> <bold>World</bold></plain>") shouldBe "Hello World"
+    }
+
+    "plain tag strips minimessage styling" {
+        serialize("<plain><red>Hello</red> <bold>World</bold></plain>") shouldBe "Hello World"
     }
 
     "custom text placeholder tag resolves from a group" {
@@ -214,6 +252,20 @@ class TagTests : StringSpec({
         )
 
         render("<short_server>", resolver) shouldBe "\u0280\u1D1C\u0274\u1D21\u1D00\u028F\u1D0D\u1D04"
+    }
+
+    "papi tag output can contain runway tags" {
+        val resolver = TagResolver.resolver(
+            PAPITag { _, placeholder ->
+                when (placeholder) {
+                    "runway_nested" -> "<smallcaps>RunwayMC</smallcaps>"
+                    else -> ""
+                }
+            }.retrieve(),
+            SmallCapsTag().retrieve()
+        )
+
+        render("<papi:runway_nested>", resolver) shouldBe "\u0280\u1D1C\u0274\u1D21\u1D00\u028F\u1D0D\u1D04"
     }
 
     "sanitized text parses minimessage but not custom placeholder tags" {

@@ -1,11 +1,9 @@
 package me.mrafonso.runway.processing
 
 import com.github.retrooper.packetevents.protocol.item.ItemStack
-import io.github.miniplaceholders.api.MiniPlaceholders
 import io.github.retrooper.packetevents.util.SpigotConversionUtil
 import me.mrafonso.runway.config.ConfigHandler
 import me.mrafonso.runway.config.Settings
-import me.mrafonso.runway.integration.HookHandler
 import me.mrafonso.runway.resolver.ResolverHandler
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
@@ -18,11 +16,9 @@ import org.bukkit.entity.Player
  * Handles processing of [Component] and [ItemStack] with MiniMessage formatting, custom placeholders,
  * and integration with PlaceholderAPI/MiniPlaceholders.
  *
- * @property hookHandler The [me.mrafonso.runway.integration.HookHandler] instance for checking available hooks.
  * @property configHandler The [me.mrafonso.runway.config.ConfigHandler] instance for accessing configuration settings.
  */
 class ProcessHandler(
-    private val hookHandler: HookHandler,
     private val configHandler: ConfigHandler,
     private val resolverHandler: ResolverHandler
 ) {
@@ -75,10 +71,7 @@ class ProcessHandler(
         // Remove prefix from text if it exists
         if(text.startsWith(prefix)) text = text.drop(prefix.length)
 
-        var resolver: TagResolver = resolverHandler.resolver
-        if (hookHandler.miniPlaceholders) {
-            resolver = TagResolver.resolver(resolver, MiniPlaceholders.audienceGlobalPlaceholders())
-        }
+        val resolver: TagResolver = resolverHandler.withMiniPlaceholders(resolverHandler.resolver)
 
         val afterText = splitText.getOrNull(1)
 

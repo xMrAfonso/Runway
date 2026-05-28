@@ -12,6 +12,8 @@ data class Settings(
     @SerialComment(["Whether to disable italics in names and lores of items. (default: true)"])
     var disableItalics: Boolean = true,
 
+    val miniPlaceholders: MiniPlaceholders = MiniPlaceholders(),
+
     @SerialComment(["Listeners that Runway will listen to and intercept their packets."])
     val listeners: Listeners = Listeners()
 ) {
@@ -29,14 +31,38 @@ data class Settings(
     )
 
     @Serializable
+    data class MiniPlaceholders(
+        @SerialComment([
+            "How often Runway refreshes MiniPlaceholders audience global placeholders, in seconds. (default: 30)",
+            "Set to 0 or below to refresh every parse."
+        ])
+        var audienceGlobalPlaceholdersRefreshSeconds: Long = 30
+    )
+
+    @Serializable
     data class Listeners(
+        val chat: Chat = Chat(),
         @SerialComment(["Whether to parse system messages, also known as plugin messages. (default: true)"])
         var systemMessages: Boolean = true,
         var tablist: Boolean = true,
         var titles: Boolean = true,
+        @SerialComment(["Whether to parse dialogs and all text/items inside them. (default: true)"])
+        var dialogs: Boolean = true,
         var scoreboards: Boolean = true,
         val inventory: Inventory = Inventory(),
         var items: Boolean = true
+    )
+
+    @Serializable
+    data class Chat(
+        @SerialComment(["Whether to parse player chat messages. (default: true)"])
+        var enabled: Boolean = true,
+
+        @SerialComment([
+            "Whether player chat content should be automatically sanitized.",
+            "If false, player chat content can use the same tags as the chat renderer. (default: true)"
+        ])
+        var sanitize: Boolean = true
     )
 
     @Serializable

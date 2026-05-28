@@ -79,9 +79,8 @@ tasks {
         javaToolchains {
             launcherFor {
                 vendor = JvmVendorSpec.JETBRAINS
-                languageVersion.set(JavaLanguageVersion.of(21))
+                languageVersion.set(JavaLanguageVersion.of(25))
             }
-            jvmArgs("-XX:+AllowEnhancedClassRedefinition")
         }
     }
 

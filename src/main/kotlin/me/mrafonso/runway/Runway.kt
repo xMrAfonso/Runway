@@ -11,6 +11,7 @@ import me.mrafonso.runway.config.Settings
 import me.mrafonso.runway.processing.*
 import me.mrafonso.runway.integration.HookHandler
 import me.mrafonso.runway.listener.ChatListener
+import me.mrafonso.runway.listener.packet.DialogPacketListener
 import me.mrafonso.runway.listener.packet.InventoryPacketListener
 import me.mrafonso.runway.listener.packet.ItemPacketListener
 import me.mrafonso.runway.listener.packet.SystemChatPacketListener
@@ -26,6 +27,7 @@ import org.bukkit.plugin.java.JavaPlugin
 open class Runway : JavaPlugin() {
     private val METRICS_ID = 28365
     lateinit var configHandler: ConfigHandler
+    private var resolverHandler: ResolverHandler? = null
 
     /**
      * Called when the plugin is first loaded by the server.
@@ -63,7 +65,7 @@ open class Runway : JavaPlugin() {
     }
 
     override fun onDisable() {
-        // Plugin shutdown logic
+        resolverHandler?.stop()
         logger.info("Runway disabled!")
     }
 
@@ -110,6 +112,7 @@ open class Runway : JavaPlugin() {
             TablistPacketListener(handlers.second, configHandler),
             InventoryPacketListener(handlers.second, configHandler),
             ItemPacketListener(handlers.second, configHandler),
+            DialogPacketListener(handlers.second, configHandler),
             TitlePacketListener(handlers.second, configHandler),
             TestPacketListener(handlers.second, configHandler)
         )
@@ -173,10 +176,11 @@ open class Runway : JavaPlugin() {
      * @return A pair containing the initialized ResolverHandler and ProcessHandler instances.
      */
     private fun initResolverHandler(hookHandler: HookHandler, configHandler: ConfigHandler): Pair<ResolverHandler, ProcessHandler> {
-        val resolverHandler = ResolverHandler(this, hookHandler)
+        val resolverHandler = ResolverHandler(this, hookHandler, configHandler)
+        this.resolverHandler = resolverHandler
         resolverHandler.reloadAll()
 
-        val processHandler = ProcessHandler(hookHandler, configHandler, resolverHandler)
+        val processHandler = ProcessHandler(configHandler, resolverHandler)
         return Pair(resolverHandler, processHandler)
     }
 

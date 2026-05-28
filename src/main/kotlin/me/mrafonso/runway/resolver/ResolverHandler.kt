@@ -1,8 +1,8 @@
 package me.mrafonso.runway.resolver
 
 import ch.andre601.expressionparser.DefaultExpressionParserEngine
-import io.github.miniplaceholders.api.MiniPlaceholders
 import me.mrafonso.runway.Runway
+import me.mrafonso.runway.config.ConfigHandler
 import me.mrafonso.runway.integration.HookHandler
 import me.mrafonso.runway.integration.TagManager
 import net.kyori.adventure.pointer.Pointered
@@ -11,10 +11,11 @@ import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.ParsingException
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 
-class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
+class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler, configHandler: ConfigHandler) {
 
     private val tagManager = TagManager()
     private val groupManager = PlaceholderGroupManager(plugin)
+    private val miniPlaceholdersResolverCache = MiniPlaceholdersResolverCache(plugin, configHandler)
     private val miniMessage = MiniMessage.miniMessage()
     private val expressionParser = DefaultExpressionParserEngine.createDefault()
     private val evaluator = PlaceholderEvaluator(miniMessage, expressionParser) { text, player -> processPlaceholders(text, player) }
@@ -32,16 +33,17 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
     fun reloadAll() {
         groupManager.reloadAll()
         loadPlaceholders()
+        miniPlaceholdersResolverCache.reload(hookHandler.miniPlaceholders)
+    }
+
+    fun stop() {
+        miniPlaceholdersResolverCache.stop()
     }
 
     fun loadPlaceholders() {
         val groups = groupManager.groups().map { it.get() }
         sanitizedResolver = sanitizedBuilder.buildSanitized(groups)
         resolver = TagResolver.resolver(builder.build(groups), tagManager.resolver())
-
-        if (hookHandler.miniPlaceholders) {
-            resolver = TagResolver.resolver(resolver, MiniPlaceholders.audienceGlobalPlaceholders())
-        }
     }
 
     fun processSanitizedPlaceholders(text: String, player: Pointered?): Component? {
@@ -62,10 +64,7 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
      * @return [net.kyori.adventure.text.Component] The processed [net.kyori.adventure.text.Component], or null if parsing fails
      */
     fun processPlaceholders(text: String, player: Pointered?): Component? {
-        var currentResolver = resolver
-        if (hookHandler.miniPlaceholders) {
-            currentResolver = TagResolver.resolver(currentResolver, MiniPlaceholders.audienceGlobalPlaceholders())
-        }
+        val currentResolver = withMiniPlaceholders(resolver)
         return try {
             player?.let {
                 miniMessage.deserialize(text, player, currentResolver)
@@ -83,12 +82,18 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler) {
      * @return [Component] The deserialized [Component].
      */
     private fun deserializeWithTarget(text: String, target: Pointered?): Component {
-        return target?.let { miniMessage.deserialize(text, target, resolver) }
-            ?: miniMessage.deserialize(text, resolver)
+        val currentResolver = withMiniPlaceholders(resolver)
+        return target?.let { miniMessage.deserialize(text, target, currentResolver) }
+            ?: miniMessage.deserialize(text, currentResolver)
     }
 
     private fun deserializeSanitizedWithTarget(text: String, target: Pointered?): Component {
         return target?.let { miniMessage.deserialize(text, target, sanitizedResolver) }
             ?: miniMessage.deserialize(text, sanitizedResolver)
+    }
+
+    fun withMiniPlaceholders(baseResolver: TagResolver): TagResolver {
+        if (!hookHandler.miniPlaceholders) return baseResolver
+        return TagResolver.resolver(baseResolver, miniPlaceholdersResolverCache.get())
     }
 }

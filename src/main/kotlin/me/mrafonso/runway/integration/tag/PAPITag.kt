@@ -1,15 +1,15 @@
 package me.mrafonso.runway.integration.tag
 
 import me.clip.placeholderapi.PlaceholderAPI
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.minimessage.Context
 import net.kyori.adventure.text.minimessage.tag.Tag
-import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.entity.Player
 
-class PAPITag : AbstractTag() {
+class PAPITag(
+    private val placeholderParser: (Player?, String) -> String = { player, placeholder ->
+        PlaceholderAPI.setPlaceholders(player, "%$placeholder%")
+    }
+) : AbstractTag() {
     /**
      * A TagResolver that integrates with PlaceholderAPI to replace placeholders in MiniMessage format.
      *
@@ -29,11 +29,9 @@ class PAPITag : AbstractTag() {
             val papiPlaceholder = argumentQueue!!.popOr("papi tag requires an argument").value()
             val player = context.target() as? Player
 
-            val parsedPlaceholder = PlaceholderAPI.setPlaceholders(player, "%$papiPlaceholder%")
+            val parsedPlaceholder = placeholderParser(player, papiPlaceholder)
 
-            val componentPlaceholder: Component =
-                LegacyComponentSerializer.legacySection().deserialize(parsedPlaceholder)
-            Tag.selfClosingInserting(componentPlaceholder)
+            Tag.preProcessParsed(parsedPlaceholder)
         }
     }
 }
