@@ -12,25 +12,32 @@ import org.bukkit.entity.Player
 class InventoryPacketListener(processHandler: ProcessHandler, configHandler: ConfigHandler) :
     AbstractPacketListener(processHandler, configHandler) {
 
-    override fun onPacketPlaySend(e: PacketPlaySendEvent) {
-        super.onPacketPlaySend(e)
+    override fun handlePacket(e: PacketPlaySendEvent) {
         if (e.packetType != PacketType.Play.Server.OPEN_WINDOW &&
             e.packetType != PacketType.Play.Server.WINDOW_ITEMS) return
 
         val settings = configHandler.get<Settings>()
         val player = e.getPlayer<Player>()
 
-        if (settings.listeners.inventory.title &&
+        if (settings.listeners.inventory.title.enable &&
             e.packetType == PacketType.Play.Server.OPEN_WINDOW) {
 
             val packet = WrapperPlayServerOpenWindow(e)
-            packet.title = handler.processComponent(packet.title, player) ?: return
+            packet.title = handler.processComponent(
+                packet.title,
+                player,
+                settings.requiresPrefix(settings.listeners.inventory.title)
+            ) ?: return
 
-        } else if (settings.listeners.inventory.items &&
+        } else if (settings.listeners.inventory.items.enable &&
             e.packetType == PacketType.Play.Server.WINDOW_ITEMS) {
 
             val packet = WrapperPlayServerWindowItems(e)
-            packet.items = handler.processItems(packet.items, player)
+            packet.items = handler.processItems(
+                packet.items,
+                player,
+                settings.requiresPrefix(settings.listeners.inventory.items)
+            )
         }
     }
 }

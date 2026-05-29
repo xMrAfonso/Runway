@@ -51,5 +51,5 @@ class MiniPlaceholdersResolverCache(
 
     private fun refreshSeconds(): Long = configHandler.get<Settings>()
         .miniPlaceholders
-        .audienceGlobalPlaceholdersRefreshSeconds
+        .refreshRate
 }

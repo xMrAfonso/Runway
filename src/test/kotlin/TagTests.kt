@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import me.mrafonso.runway.config.placeholder.Group
 import me.mrafonso.runway.config.placeholder.NumberPlaceholder
+import me.mrafonso.runway.config.placeholder.RandomPlaceholder
 import me.mrafonso.runway.config.placeholder.TextPlaceholder
 import me.mrafonso.runway.integration.TagManager
 import me.mrafonso.runway.resolver.PlaceholderEvaluator
@@ -266,6 +267,24 @@ class TagTests : StringSpec({
         )
 
         render("<papi:runway_nested>", resolver) shouldBe "\u0280\u1D1C\u0274\u1D21\u1D00\u028F\u1D0D\u1D04"
+    }
+
+    "papi tag is not registered by default" {
+        render("<papi:player_name>") shouldBe "<papi:player_name>"
+    }
+
+    "empty random placeholder resolves as empty text" {
+        val resolver = customResolver(
+            listOf(
+                Group(
+                    placeholders = mapOf(
+                        "empty_random" to RandomPlaceholder()
+                    )
+                )
+            )
+        )
+
+        render("Before<empty_random>After", resolver) shouldBe "BeforeAfter"
     }
 
     "sanitized text parses minimessage but not custom placeholder tags" {

@@ -35,13 +35,12 @@ class MigrationHandler(
         newConfig.disableItalics = oldConfig.disableItalics
 
         // Migrate listeners
-        newConfig.listeners.systemMessages = oldConfig.listeners.systemMessages
-        newConfig.listeners.tablist = oldConfig.listeners.tablist
-        newConfig.listeners.titles = oldConfig.listeners.titles
-        newConfig.listeners.scoreboards = oldConfig.listeners.scoreboards
-        newConfig.listeners.inventory.title = oldConfig.listeners.inventory.title
-        newConfig.listeners.inventory.items = oldConfig.listeners.inventory.items
-        newConfig.listeners.items = oldConfig.listeners.items
+        newConfig.listeners.systemMessages.enable = oldConfig.listeners.systemMessages
+        newConfig.listeners.tablist.enable = oldConfig.listeners.tablist
+        newConfig.listeners.titles.enable = oldConfig.listeners.titles
+        newConfig.listeners.inventory.title.enable = oldConfig.listeners.inventory.title
+        newConfig.listeners.inventory.items.enable = oldConfig.listeners.inventory.items
+        newConfig.listeners.items.enable = oldConfig.listeners.items
 
         configHandler.save<Settings>()
         archiveLegacyFile("config.yml", "old-config.yml")

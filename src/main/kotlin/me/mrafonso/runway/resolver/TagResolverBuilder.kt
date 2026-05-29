@@ -80,7 +80,7 @@ class TagResolverBuilder(
             is TextPlaceholder -> Tag.preProcessParsed(placeholder.value)
             is NumberPlaceholder -> Tag.selfClosingInserting(deserialize(placeholder.value.toString(), target))
             is ConditionalPlaceholder -> evaluator.evaluateConditional(group, placeholder, target, deserialize)
-            is RandomPlaceholder -> Tag.preProcessParsed(placeholder.value.random())
+            is RandomPlaceholder -> Tag.preProcessParsed(placeholder.value.randomOrNull().orEmpty())
             is MatchPlaceholder -> evaluator.evaluateMatch(placeholder, target, deserialize)
             is SwitchPlaceholder -> evaluator.evaluateSwitch(placeholder, target, deserialize)
        }

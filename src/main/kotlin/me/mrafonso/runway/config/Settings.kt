@@ -1,6 +1,7 @@
 package me.mrafonso.runway.config
 
 import dev.triumphteam.polaris.annotation.SerialComment
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -33,30 +34,32 @@ data class Settings(
     @Serializable
     data class MiniPlaceholders(
         @SerialComment([
-            "How often Runway refreshes MiniPlaceholders audience global placeholders, in seconds. (default: 30)",
-            "Set to 0 or below to refresh every parse."
+            "How often Runway refreshes MiniPlaceholders global placeholders, in seconds. (default: 30)"
         ])
-        var audienceGlobalPlaceholdersRefreshSeconds: Long = 30
+        @SerialName("refresh-rate")
+        var refreshRate: Long = 30
     )
 
     @Serializable
     data class Listeners(
         val chat: Chat = Chat(),
         @SerialComment(["Whether to parse system messages, also known as plugin messages. (default: true)"])
-        var systemMessages: Boolean = true,
-        var tablist: Boolean = true,
-        var titles: Boolean = true,
+        val systemMessages: Listener = Listener(),
+        val tablist: Listener = Listener(),
+        val titles: Listener = Listener(),
         @SerialComment(["Whether to parse dialogs and all text/items inside them. (default: true)"])
-        var dialogs: Boolean = true,
-        var scoreboards: Boolean = true,
+        val dialogs: Listener = Listener(),
         val inventory: Inventory = Inventory(),
-        var items: Boolean = true
+        val items: Listener = Listener()
     )
 
     @Serializable
     data class Chat(
         @SerialComment(["Whether to parse player chat messages. (default: true)"])
-        var enabled: Boolean = true,
+        var enable: Boolean = true,
+
+        @SerialName("require-prefix")
+        var requirePrefix: Boolean = false,
 
         @SerialComment([
             "Whether player chat content should be automatically sanitized.",
@@ -67,7 +70,18 @@ data class Settings(
 
     @Serializable
     data class Inventory(
-        var title: Boolean = true,
-        var items: Boolean = true
+        val title: Listener = Listener(),
+        val items: Listener = Listener()
     )
+
+    @Serializable
+    data class Listener(
+        var enable: Boolean = true,
+        @SerialName("require-prefix")
+        var requirePrefix: Boolean = false
+    )
+
+    fun requiresPrefix(listener: Listener): Boolean = prefix.required || listener.requirePrefix
+
+    fun requiresPrefix(listener: Chat): Boolean = prefix.required || listener.requirePrefix
 }

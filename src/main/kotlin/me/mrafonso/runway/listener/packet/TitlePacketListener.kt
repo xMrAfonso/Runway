@@ -15,20 +15,20 @@ import org.bukkit.entity.Player
 class TitlePacketListener(processHandler: ProcessHandler, configHandler: ConfigHandler) :
     AbstractPacketListener(processHandler, configHandler) {
 
-    override fun onPacketPlaySend(e: PacketPlaySendEvent) {
-        super.onPacketPlaySend(e)
+    override fun handlePacket(e: PacketPlaySendEvent) {
         if (e.packetType != PacketType.Play.Server.SET_TITLE_TEXT && e.packetType != PacketType.Play.Server.SET_TITLE_SUBTITLE) return
 
         val settings = configHandler.get<Settings>()
-        if (!settings.listeners.titles) return
+        if (!settings.listeners.titles.enable) return
+        val requirePrefix = settings.requiresPrefix(settings.listeners.titles)
 
         val player = e.getPlayer<Player>()
         if (e.packetType == PacketType.Play.Server.SET_TITLE_TEXT) {
             val packet = WrapperPlayServerSetTitleText(e)
-            handler.processComponent(packet.title, player)?.let { packet.title = it }
+            handler.processComponent(packet.title, player, requirePrefix)?.let { packet.title = it }
         } else {
             val packet = WrapperPlayServerSetTitleSubtitle(e)
-            handler.processComponent(packet.subtitle, player)?.let { packet.subtitle = it }
+            handler.processComponent(packet.subtitle, player, requirePrefix)?.let { packet.subtitle = it }
         }
     }
 }

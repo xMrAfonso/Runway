@@ -6,7 +6,6 @@ import me.mrafonso.runway.config.ConfigHandler
 import me.mrafonso.runway.config.Settings
 import me.mrafonso.runway.resolver.ResolverHandler
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.ParsingException
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
@@ -33,9 +32,9 @@ class ProcessHandler(
      * @param player The [Player] to use for PlaceholderAPI/MiniPlaceholders parsing. Can be null.
      * @return [Component] The processed [Component], or null if the message should be ignored.
      */
-    fun processComponent(input: Component?, player: Player? = null): Component? {
+    fun processComponent(input: Component?, player: Player? = null, requirePrefix: Boolean? = null): Component? {
         if (input == null) return null
-        return processComponent(miniMessage.serialize(input), player)
+        return processComponent(miniMessage.serialize(input), player, requirePrefix)
     }
 
     /**
@@ -46,20 +45,20 @@ class ProcessHandler(
      * @param player The [Player] to use for PlaceholderAPI/MiniPlaceholders parsing. Can be null.
      * @return [Component] The processed [Component], or null if the message should be ignored.
      */
-    fun processComponent(input: String, player: Player? = null): Component? {
+    fun processComponent(input: String, player: Player? = null, requirePrefix: Boolean? = null): Component? {
         val settings = configHandler.get<Settings>()
-        val requirePrefix = settings.prefix.required
+        val shouldRequirePrefix = requirePrefix ?: settings.prefix.required
         val prefix = settings.prefix.value
 
         val disableItalics = settings.disableItalics
 
         // If the prefix is required, ignore messages not starting with `prefix`
-        if (requirePrefix &&
+        if (shouldRequirePrefix &&
             !input.startsWith(prefix)
         ) return null
 
         // If the prefix is not required, ignore messages starting with `!prefix`
-        if (!requirePrefix &&
+        if (!shouldRequirePrefix &&
             input.startsWith("!$prefix")
         ) return null
 
@@ -109,10 +108,10 @@ class ProcessHandler(
      *
      * @param input The list of input [Component]s to process.
      * @param player The [Player] to use for PlaceholderAPI/MiniPlaceholders parsing. Can be null.
-     * @return [List] of processed [Component], excluding any that should be ignored.
+     * @return [List] of processed [Component], preserving the original line when it should be ignored.
      */
-    fun processComponents(input: List<Component>, player: Player?): List<Component> {
-        return input.mapNotNull { processComponent(it, player) }
+    fun processComponents(input: List<Component>, player: Player?, requirePrefix: Boolean? = null): List<Component> {
+        return input.map { original -> processComponent(original, player, requirePrefix) ?: original }
     }
 
     /**
@@ -124,17 +123,17 @@ class ProcessHandler(
      * @param player The [Player] to use for PlaceholderAPI/MiniPlaceholders parsing. Can be null.
      * @return [ItemStack] The processed [ItemStack] with updated display name and lore.
      */
-    fun processItem(item: ItemStack, player: Player?): ItemStack {
+    fun processItem(item: ItemStack, player: Player?, requirePrefix: Boolean? = null): ItemStack {
         val bukkitItem = SpigotConversionUtil.toBukkitItemStack(item)
         bukkitItem.itemMeta?.let { meta ->
             meta.displayName()?.let { original ->
-                val processed = processComponent(original, player)
+                val processed = processComponent(original, player, requirePrefix)
                 if (processed != null) {
                     meta.displayName(processed)
                 }
             }
             meta.lore()?.let { original ->
-                val processed = processComponents(original, player)
+                val processed = processComponents(original, player, requirePrefix)
                 if (processed.isNotEmpty()) {
                     meta.lore(processed)
                 }
@@ -152,7 +151,7 @@ class ProcessHandler(
      * @param player The [Player] to use for PlaceholderAPI/MiniPlaceholders parsing. Can be null.
      * @return [List] of processed [ItemStack] with updated display names and lores.
      */
-    fun processItems(items: List<ItemStack>, player: Player?): List<ItemStack> {
-        return items.map { processItem(it, player) }
+    fun processItems(items: List<ItemStack>, player: Player?, requirePrefix: Boolean? = null): List<ItemStack> {
+        return items.map { processItem(it, player, requirePrefix) }
     }
 }

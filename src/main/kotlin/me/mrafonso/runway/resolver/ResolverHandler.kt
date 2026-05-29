@@ -13,7 +13,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 
 class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler, configHandler: ConfigHandler) {
 
-    private val tagManager = TagManager()
+    private val tagManager = TagManager(hookHandler.placeholderAPI)
     private val groupManager = PlaceholderGroupManager(plugin)
     private val miniPlaceholdersResolverCache = MiniPlaceholdersResolverCache(plugin, configHandler)
     private val miniMessage = MiniMessage.miniMessage()
@@ -29,6 +29,7 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler, configHa
 
     var resolver: TagResolver = tagManager.resolver()
     var sanitizedResolver: TagResolver = TagResolver.empty()
+    private var customPlaceholderNames: Set<String> = emptySet()
 
     fun reloadAll() {
         groupManager.reloadAll()
@@ -42,8 +43,21 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler, configHa
 
     fun loadPlaceholders() {
         val groups = groupManager.groups().map { it.get() }
+        customPlaceholderNames = groups.flatMap { group ->
+            group.placeholders.keys.map { key ->
+                if (group.prefix != null) "${group.prefix}_$key" else key
+            }
+        }.map { it.lowercase() }.toSet()
         sanitizedResolver = sanitizedBuilder.buildSanitized(groups)
         resolver = TagResolver.resolver(builder.build(groups), tagManager.resolver())
+    }
+
+    fun processCustomPlaceholder(name: String, player: Pointered?): String? {
+        val normalizedName = name.lowercase()
+        if (normalizedName !in customPlaceholderNames) return null
+
+        val component = processPlaceholders("<$normalizedName>", player) ?: return null
+        return miniMessage.serialize(component)
     }
 
     fun processSanitizedPlaceholders(text: String, player: Pointered?): Component? {

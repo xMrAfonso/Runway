@@ -24,14 +24,23 @@ class ChatListener(
     @EventHandler(priority = EventPriority.HIGHEST)
     fun onChatMessage(e: AsyncChatEvent) {
         val settings = configHandler.get<Settings>()
-        if (!settings.listeners.chat.enabled) return
+        if (!settings.listeners.chat.enable) return
 
         val text = plainText.serialize(e.message())
+        val requirePrefix = settings.requiresPrefix(settings.listeners.chat)
+        if (!requirePrefix && text.startsWith("!${settings.prefix.value}")) return
+
         val marker = if (settings.listeners.chat.sanitize) "<sanitized>" else ""
+        val input = if (text.startsWith(settings.prefix.value)) {
+            "${settings.prefix.value}$marker${text.drop(settings.prefix.value.length)}"
+        } else {
+            "$marker$text"
+        }
 
         val processedMessage = processHandler.processComponent(
-            "${settings.prefix.value}$marker$text",
+            input,
             e.player,
+            requirePrefix,
         ) ?: return
 
         e.message(processedMessage)
@@ -56,7 +65,8 @@ class ChatListener(
                 renderer.render(source, sourceDisplayName, Component.text(messageMarker), viewer)
 
             val processed =
-                processHandler.processComponent("${settings.prefix.value}${miniMessage.serialize(rendered)}", source) ?: rendered
+                processHandler.processComponent("${settings.prefix.value}${miniMessage.serialize(rendered)}", source, false)
+                    ?: rendered
 
             // Put the already-processed message back into the final rendered chat component.
             processed.replaceText {

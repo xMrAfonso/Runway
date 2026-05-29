@@ -10,12 +10,14 @@ import me.mrafonso.runway.integration.tag.UppercaseTag
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 
 class TagManager(
+    private val placeholderAPI: Boolean = false,
     private val tags: MutableList<AbstractTag> = mutableListOf()
 ) {
 
     init {
+        if (placeholderAPI) register(PAPITag())
+
         register(
-            PAPITag(),
             ActionbarTag(),
             SmallCapsTag(),
             UppercaseTag(),

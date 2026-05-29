@@ -10,6 +10,7 @@ import me.mrafonso.runway.config.Lang
 import me.mrafonso.runway.config.Settings
 import me.mrafonso.runway.processing.*
 import me.mrafonso.runway.integration.HookHandler
+import me.mrafonso.runway.integration.RunwayPlaceholderExpansion
 import me.mrafonso.runway.listener.ChatListener
 import me.mrafonso.runway.listener.packet.DialogPacketListener
 import me.mrafonso.runway.listener.packet.InventoryPacketListener
@@ -28,6 +29,7 @@ open class Runway : JavaPlugin() {
     private val METRICS_ID = 28365
     lateinit var configHandler: ConfigHandler
     private var resolverHandler: ResolverHandler? = null
+    private var unregisterPlaceholderExpansion: (() -> Unit)? = null
 
     /**
      * Called when the plugin is first loaded by the server.
@@ -51,6 +53,7 @@ open class Runway : JavaPlugin() {
                     !dataFolder.resolve("placeholders").resolve("migrated.yml").exists()
         )
         configHandler = initConfigHandler()
+        configHandler.save<Settings>()
 
         initMigration(configHandler, migrationState)
 
@@ -59,13 +62,16 @@ open class Runway : JavaPlugin() {
         initPacketListeners(configHandler, handlers)
         initPacketEvents()
         initCommandManager(configHandler, handlers)
+        initPlaceholderExpansion(hookHandler, handlers.first)
         initMetrics()
 
         logger.info("Runway enabled!")
     }
 
     override fun onDisable() {
+        unregisterPlaceholderExpansion?.invoke()
         resolverHandler?.stop()
+        PacketEvents.getAPI().terminate()
         logger.info("Runway disabled!")
     }
 
@@ -182,6 +188,16 @@ open class Runway : JavaPlugin() {
 
         val processHandler = ProcessHandler(configHandler, resolverHandler)
         return Pair(resolverHandler, processHandler)
+    }
+
+    private fun initPlaceholderExpansion(hookHandler: HookHandler, resolverHandler: ResolverHandler) {
+        if (!hookHandler.placeholderAPI) return
+
+        RunwayPlaceholderExpansion(this, resolverHandler).also { expansion ->
+            expansion.register()
+            unregisterPlaceholderExpansion = { expansion.unregister() }
+        }
+        logger.info("Registered PlaceholderAPI expansion: %runway_<placeholder>%")
     }
 
     /**

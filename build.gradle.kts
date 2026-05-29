@@ -16,7 +16,6 @@ repositories {
     mavenCentral()
     maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
     maven { url = uri("https://oss.sonatype.org/content/groups/public/") }
-    maven { url = uri("https://jitpack.io") }
     maven { url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/") }
     maven { url = uri("https://repo.triumphteam.dev/snapshots/") }
     maven { url = uri("https://repo.codemc.org/repository/maven-snapshots/") }
@@ -47,6 +46,7 @@ dependencies {
     fullCompileOnly("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
 
     // Testing specific
+    testImplementation("io.netty:netty-buffer:4.1.110.Final")
     testImplementation("io.kotest:kotest-assertions-core:6.1.11")
     testImplementation("io.kotest:kotest-runner-junit5:6.1.11")
     testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v26.1.2:4.113.1")

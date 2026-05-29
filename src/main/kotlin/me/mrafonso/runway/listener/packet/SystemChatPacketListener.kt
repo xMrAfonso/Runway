@@ -11,12 +11,12 @@ import org.bukkit.entity.Player
 class SystemChatPacketListener(processHandler: ProcessHandler, configHandler: ConfigHandler) :
     AbstractPacketListener(processHandler, configHandler) {
 
-    override fun onPacketPlaySend(e: PacketPlaySendEvent) {
-        super.onPacketPlaySend(e)
+    override fun handlePacket(e: PacketPlaySendEvent) {
         if (e.packetType != PacketType.Play.Server.SYSTEM_CHAT_MESSAGE) return
 
         val settings = configHandler.get<Settings>()
-        if (!settings.listeners.systemMessages) return
+        if (!settings.listeners.systemMessages.enable) return
+        val requirePrefix = settings.requiresPrefix(settings.listeners.systemMessages)
 
         val player = e.getPlayer<Player>()
         val packet = WrapperPlayServerSystemChatMessage(e)
@@ -28,11 +28,8 @@ class SystemChatPacketListener(processHandler: ProcessHandler, configHandler: Co
             return
         }
 
-        packet.message = handler.processComponent(text, player) ?: return
+        packet.message = handler.processComponent(text, player, requirePrefix) ?: return
 
-        if (settings.prefix.required) text.drop(settings.prefix.value.length)
-        if (text.contains("\\<silent>")) {
-            e.isCancelled = true
-        }
+        if (text.contains("\\<silent>")) e.isCancelled = true
     }
 }

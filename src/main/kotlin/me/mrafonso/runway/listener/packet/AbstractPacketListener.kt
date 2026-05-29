@@ -14,7 +14,10 @@ open class AbstractPacketListener(
 
     protected val mm = MiniMessage.miniMessage()
 
-    override fun onPacketPlaySend(e: PacketPlaySendEvent) {
+    final override fun onPacketPlaySend(e: PacketPlaySendEvent) {
         if (e.isCancelled) return
+        handlePacket(e)
     }
+
+    protected open fun handlePacket(e: PacketPlaySendEvent) = Unit
 }

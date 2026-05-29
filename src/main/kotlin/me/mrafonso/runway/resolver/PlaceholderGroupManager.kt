@@ -15,7 +15,7 @@ class PlaceholderGroupManager(private val plugin: Runway) {
      * Reloads all loaded placeholder configurations.
      */
     fun reloadAll() {
-        groups.forEach { (_, config) -> config.reload() }
+        groups.clear()
         loadConfigs()
     }
 
@@ -45,10 +45,12 @@ class PlaceholderGroupManager(private val plugin: Runway) {
             groups["default.yml"] = loadGroup("placeholders/default.yml", true)
         } else {
             println("Loading placeholder configuration files from placeholders directory.")
-            val allFiles = Files.walk(path)
-                .filter { Files.isRegularFile(it) && it.fileName.toString().endsWith(".yml") }
-                .map { it.fileName.toString() }
-                .toList()
+            val allFiles = Files.walk(path).use { files ->
+                files
+                    .filter { Files.isRegularFile(it) && it.fileName.toString().endsWith(".yml") }
+                    .map { it.fileName.toString() }
+                    .toList()
+            }
 
             allFiles.forEach { fileName ->
                 try {
@@ -72,4 +74,3 @@ class PlaceholderGroupManager(private val plugin: Runway) {
             ?: throw IllegalStateException("Failed to load placeholder configuration from $fileName")
     }
 }
-
