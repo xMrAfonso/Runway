@@ -12,9 +12,13 @@ import me.mrafonso.runway.processing.*
 import me.mrafonso.runway.integration.HookHandler
 import me.mrafonso.runway.integration.RunwayPlaceholderExpansion
 import me.mrafonso.runway.listener.ChatListener
+import me.mrafonso.runway.listener.packet.ActionbarPacketListener
+import me.mrafonso.runway.listener.packet.BossbarPacketListener
 import me.mrafonso.runway.listener.packet.DialogPacketListener
+import me.mrafonso.runway.listener.packet.EntityTextPacketListener
 import me.mrafonso.runway.listener.packet.InventoryPacketListener
 import me.mrafonso.runway.listener.packet.ItemPacketListener
+import me.mrafonso.runway.listener.packet.PlayerNamePacketListener
 import me.mrafonso.runway.listener.packet.SystemChatPacketListener
 import me.mrafonso.runway.listener.packet.TablistPacketListener
 import me.mrafonso.runway.listener.packet.TitlePacketListener
@@ -115,10 +119,14 @@ open class Runway : JavaPlugin() {
         val manager = PacketEvents.getAPI().eventManager
         manager.registerListeners(
             SystemChatPacketListener(handlers.second, configHandler),
+            ActionbarPacketListener(handlers.second, configHandler),
+            BossbarPacketListener(handlers.second, configHandler),
             TablistPacketListener(handlers.second, configHandler),
             InventoryPacketListener(handlers.second, configHandler),
             ItemPacketListener(handlers.second, configHandler),
             DialogPacketListener(handlers.second, configHandler),
+            EntityTextPacketListener(handlers.second, configHandler),
+            PlayerNamePacketListener(handlers.second, configHandler),
             TitlePacketListener(handlers.second, configHandler),
             TestPacketListener(handlers.second, configHandler)
         )

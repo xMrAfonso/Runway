@@ -79,7 +79,7 @@ class RunwayTests : StringSpec({
         migratedText.contains("RunwayMC") shouldBe true
         migratedText.contains("server_selector") shouldBe true
         migratedText.contains("<gradient:#ffff00:#00ffff>SERVER SELECTOR</gradient>") shouldBe true
-        migratedText.contains("legacy-placeholders") shouldBe true
+        migratedText.contains("text-placeholders") shouldBe true
         migratedText.contains("type: TEXT") shouldBe false
         plugin.dataFolder.resolve("placeholders.yml").exists() shouldBe false
         plugin.dataFolder.resolve("old-placeholders.yml").exists() shouldBe true

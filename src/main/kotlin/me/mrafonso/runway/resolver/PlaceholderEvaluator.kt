@@ -1,7 +1,6 @@
 package me.mrafonso.runway.resolver
 
-import ch.andre601.expressionparser.DefaultExpressionParserEngine
-import ch.andre601.expressionparser.ParseWarnCollector
+import com.ezylang.evalex.Expression
 import me.mrafonso.runway.config.placeholder.ConditionalPlaceholder
 import me.mrafonso.runway.config.placeholder.Group
 import me.mrafonso.runway.config.placeholder.MatchPlaceholder
@@ -13,7 +12,6 @@ import net.kyori.adventure.text.minimessage.tag.Tag
 
 class PlaceholderEvaluator(
     private val miniMessage: MiniMessage,
-    private val expressionParser: DefaultExpressionParserEngine,
     private val placeholderProcessor: (String, Pointered?) -> Component?
 ) {
 
@@ -82,7 +80,7 @@ class PlaceholderEvaluator(
         placeholderProcessor(expression, target)?.let {
             val condition = miniMessage.serialize(it)
                 .replace("\\<", "<").replace("\\>", ">")
-            return expressionParser.compile(condition, ParseWarnCollector(condition)).returnBooleanExpression().evaluate()
+            return Expression(condition).evaluate().booleanValue
         }
         return true
     }
@@ -93,7 +91,7 @@ class PlaceholderEvaluator(
      * @param group The [Group] whose condition is to be evaluated.
      * @return [Boolean] The result of the group's condition evaluation, or true if no condition exists.
      */
-    private fun evaluateGroupCondition(group: Group, target: Pointered?): Boolean {
+    fun evaluateGroupCondition(group: Group, target: Pointered?): Boolean {
         if (group.condition == null) return true
         return evaluateExpression(group.condition, target)
     }

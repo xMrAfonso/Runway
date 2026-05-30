@@ -10,7 +10,8 @@ import net.kyori.adventure.text.minimessage.MiniMessage
 open class AbstractPacketListener(
     protected val handler: ProcessHandler,
     protected val configHandler: ConfigHandler,
-) : SimplePacketListenerAbstract(PacketListenerPriority.HIGHEST) {
+    priority: PacketListenerPriority = PacketListenerPriority.HIGHEST,
+) : SimplePacketListenerAbstract(priority) {
 
     protected val mm = MiniMessage.miniMessage()
 

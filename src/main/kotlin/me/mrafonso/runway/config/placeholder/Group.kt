@@ -12,9 +12,9 @@ import kotlinx.serialization.encoding.Encoder
 class Group(
     val prefix: String? = null,
     val condition: String? = null,
-    @SerialName("legacy-placeholders")
-    @Serializable(with = LegacyPlaceholdersSerializer::class)
-    val legacyPlaceholders: Map<String, TextPlaceholder> = emptyMap(),
+    @SerialName("text-placeholders")
+    @Serializable(with = TextPlaceholdersSerializer::class)
+    val textPlaceholders: Map<String, TextPlaceholder> = emptyMap(),
     @SerialName("placeholders")
     val typedPlaceholders: Map<String, Placeholder> = emptyMap()
 ) {
@@ -25,7 +25,7 @@ class Group(
     ) : this(prefix, condition, emptyMap(), placeholders)
 
     val placeholders: Map<String, Placeholder>
-        get() = legacyPlaceholders + typedPlaceholders
+        get() = textPlaceholders + typedPlaceholders
 
     companion object {
         fun template(): Group {
@@ -74,7 +74,7 @@ class Group(
     }
 }
 
-private object LegacyPlaceholdersSerializer : KSerializer<Map<String, TextPlaceholder>> {
+private object TextPlaceholdersSerializer : KSerializer<Map<String, TextPlaceholder>> {
     private val delegate = MapSerializer(String.serializer(), String.serializer())
 
     override val descriptor = delegate.descriptor

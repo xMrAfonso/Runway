@@ -19,7 +19,6 @@ repositories {
     maven { url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/") }
     maven { url = uri("https://repo.triumphteam.dev/snapshots/") }
     maven { url = uri("https://repo.codemc.org/repository/maven-snapshots/") }
-    maven { url = uri("https://codeberg.org/api/packages/Andre601/maven/") }
 }
 
 dependencies {
@@ -38,7 +37,7 @@ dependencies {
     fullImplementation("com.github.retrooper:packetevents-spigot:2.12.2-SNAPSHOT")
     fullImplementation("dev.triumphteam:polaris-yaml:1.0.0-SNAPSHOT")
     fullImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
-    fullImplementation("ch.andre601:expressionparser:1.6.1")
+    fullImplementation("com.ezylang:EvalEx:3.6.1")
     fullImplementation("org.bstats:bstats-bukkit:3.2.1")
 
     fullCompileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
@@ -54,12 +53,19 @@ dependencies {
     // JMH
     jmhImplementation(kotlin("stdlib"))
     jmhImplementation("io.papermc.paper:paper-api:26.1.2.build.+")
+    jmhImplementation("me.clip:placeholderapi:2.12.2")
+    jmhImplementation("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
+    jmhImplementation("io.netty:netty-buffer:4.1.110.Final")
+    jmhImplementation("org.mockbukkit.mockbukkit:mockbukkit-v26.1.2:4.113.1")
     jmhImplementation("org.openjdk.jmh:jmh-core:1.37")
     jmhAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:1.37")
 }
 
 jmh {
-    timeOnIteration.set("500ms")
+    warmupIterations.set(1)
+    iterations.set(2)
+    fork.set(1)
+    timeOnIteration.set("200ms")
     benchmarkMode.set(listOf("thrpt"))
     timeUnit.set("s")
 }

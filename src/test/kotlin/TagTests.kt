@@ -1,11 +1,13 @@
 package me.mrafonso.runway.integration.tag
 
-import ch.andre601.expressionparser.DefaultExpressionParserEngine
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import me.mrafonso.runway.config.placeholder.CaseData
+import me.mrafonso.runway.config.placeholder.ConditionalPlaceholder
 import me.mrafonso.runway.config.placeholder.Group
 import me.mrafonso.runway.config.placeholder.NumberPlaceholder
 import me.mrafonso.runway.config.placeholder.RandomPlaceholder
+import me.mrafonso.runway.config.placeholder.SwitchPlaceholder
 import me.mrafonso.runway.config.placeholder.TextPlaceholder
 import me.mrafonso.runway.integration.TagManager
 import me.mrafonso.runway.resolver.PlaceholderEvaluator
@@ -32,7 +34,6 @@ class TagTests : StringSpec({
         lateinit var resolver: TagResolver
         val evaluator = PlaceholderEvaluator(
             miniMessage = miniMessage,
-            expressionParser = DefaultExpressionParserEngine.createDefault(),
             placeholderProcessor = { text, _ -> miniMessage.deserialize(text, resolver) }
         )
         val builder = TagResolverBuilder(evaluator) { text: String, _: Pointered? ->
@@ -47,7 +48,6 @@ class TagTests : StringSpec({
         lateinit var resolver: TagResolver
         val evaluator = PlaceholderEvaluator(
             miniMessage = miniMessage,
-            expressionParser = DefaultExpressionParserEngine.createDefault(),
             placeholderProcessor = { text, _ -> miniMessage.deserialize(text, resolver) }
         )
         val builder = TagResolverBuilder(evaluator) { text: String, _: Pointered? ->
@@ -148,25 +148,55 @@ class TagTests : StringSpec({
         render("<global_server>", resolver) shouldBe "RunwayMC"
     }
 
-    "legacy placeholders resolve as custom text placeholder tags" {
+    "text placeholders resolve as custom text placeholder tags" {
         val resolver = customResolver(
             listOf(
                 Group(
-                    legacyPlaceholders = mapOf(
-                        "legacy_server" to TextPlaceholder("RunwayMC")
+                    textPlaceholders = mapOf(
+                        "text_server" to TextPlaceholder("RunwayMC")
                     )
                 )
             )
         )
 
-        render("<legacy_server>", resolver) shouldBe "RunwayMC"
+        render("<text_server>", resolver) shouldBe "RunwayMC"
     }
 
-    "legacy placeholder output preserves minimessage color gradients" {
+    "text placeholders can use group prefixes" {
         val resolver = customResolver(
             listOf(
                 Group(
-                    legacyPlaceholders = mapOf(
+                    prefix = "global",
+                    textPlaceholders = mapOf(
+                        "server" to TextPlaceholder("RunwayMC")
+                    )
+                )
+            )
+        )
+
+        render("<global_server>", resolver) shouldBe "RunwayMC"
+    }
+
+    "text placeholders respect group condition" {
+        val resolver = customResolver(
+            listOf(
+                Group(
+                    condition = "false",
+                    textPlaceholders = mapOf(
+                        "server" to TextPlaceholder("RunwayMC")
+                    )
+                )
+            )
+        )
+
+        render("Before<server>After", resolver) shouldBe "BeforeAfter"
+    }
+
+    "text placeholder output preserves minimessage color gradients" {
+        val resolver = customResolver(
+            listOf(
+                Group(
+                    textPlaceholders = mapOf(
                         "server_selector" to TextPlaceholder("<gradient:#ffff00:#00ffff>SERVER SELECTOR</gradient>")
                     )
                 )
@@ -178,11 +208,11 @@ class TagTests : StringSpec({
         serialized.contains("<gradient:#FFFF00:#00FFFF>SERVER SELECTOR") shouldBe true
     }
 
-    "legacy placeholder gradients are not overridden by outer colors" {
+    "text placeholder gradients are not overridden by outer colors" {
         val resolver = customResolver(
             listOf(
                 Group(
-                    legacyPlaceholders = mapOf(
+                    textPlaceholders = mapOf(
                         "server_selector" to TextPlaceholder("<gradient:#ffff00:#00ffff>SERVER SELECTOR</gradient>")
                     )
                 )
@@ -257,16 +287,31 @@ class TagTests : StringSpec({
 
     "papi tag output can contain runway tags" {
         val resolver = TagResolver.resolver(
-            PAPITag { _, placeholder ->
-                when (placeholder) {
-                    "runway_nested" -> "<smallcaps>RunwayMC</smallcaps>"
-                    else -> ""
+            PAPITag { _, text ->
+                when (text) {
+                    "%runway_nested%" -> "<smallcaps>RunwayMC</smallcaps>"
+                    else -> text
                 }
             }.retrieve(),
             SmallCapsTag().retrieve()
         )
 
         render("<papi:runway_nested>", resolver) shouldBe "\u0280\u1D1C\u0274\u1D21\u1D00\u028F\u1D0D\u1D04"
+    }
+
+    "papi tag parses nested papi placeholders before runway tags" {
+        val resolver = TagResolver.resolver(
+            PAPITag { _, text ->
+                when (text) {
+                    "%outer%" -> "%inner%"
+                    "%inner%" -> "<smallcaps>RunwayMC</smallcaps>"
+                    else -> text
+                }
+            }.retrieve(),
+            SmallCapsTag().retrieve()
+        )
+
+        render("<papi:outer>", resolver) shouldBe "\u0280\u1D1C\u0274\u1D21\u1D00\u028F\u1D0D\u1D04"
     }
 
     "papi tag is not registered by default" {
@@ -285,6 +330,140 @@ class TagTests : StringSpec({
         )
 
         render("Before<empty_random>After", resolver) shouldBe "BeforeAfter"
+    }
+
+    "conditional placeholder returns true output" {
+        val resolver = customResolver(
+            listOf(
+                Group(
+                    placeholders = mapOf(
+                        "status" to ConditionalPlaceholder(
+                            condition = "true",
+                            ifTrue = "Enabled",
+                            ifElse = "Disabled"
+                        )
+                    )
+                )
+            )
+        )
+
+        render("<status>", resolver) shouldBe "Enabled"
+    }
+
+    "conditional placeholder returns else output" {
+        val resolver = customResolver(
+            listOf(
+                Group(
+                    placeholders = mapOf(
+                        "status" to ConditionalPlaceholder(
+                            condition = "false",
+                            ifTrue = "Enabled",
+                            ifElse = "Disabled"
+                        )
+                    )
+                )
+            )
+        )
+
+        render("<status>", resolver) shouldBe "Disabled"
+    }
+
+    "conditional placeholder respects group condition" {
+        val resolver = customResolver(
+            listOf(
+                Group(
+                    condition = "false",
+                    placeholders = mapOf(
+                        "status" to ConditionalPlaceholder(
+                            condition = "true",
+                            ifTrue = "Enabled",
+                            ifElse = "Disabled"
+                        )
+                    )
+                )
+            )
+        )
+
+        render("Before<status>After", resolver) shouldBe "BeforeAfter"
+    }
+
+    "conditional placeholder evaluates numeric expressions" {
+        val resolver = customResolver(
+            listOf(
+                Group(
+                    placeholders = mapOf(
+                        "status" to ConditionalPlaceholder(
+                            condition = "42 > 10",
+                            ifTrue = "Large",
+                            ifElse = "Small"
+                        )
+                    )
+                )
+            )
+        )
+
+        render("<status>", resolver) shouldBe "Large"
+    }
+
+    "switch placeholder picks first matching expression" {
+        val resolver = customResolver(
+            listOf(
+                Group(
+                    placeholders = mapOf(
+                        "size" to SwitchPlaceholder(
+                            input = "150",
+                            case = listOf(
+                                CaseData("> 100", "Large"),
+                                CaseData("< 100", "Small")
+                            ),
+                            default = "Balanced"
+                        )
+                    )
+                )
+            )
+        )
+
+        render("<size>", resolver) shouldBe "Large"
+    }
+
+    "switch placeholder uses default when no expression matches" {
+        val resolver = customResolver(
+            listOf(
+                Group(
+                    placeholders = mapOf(
+                        "size" to SwitchPlaceholder(
+                            input = "100",
+                            case = listOf(
+                                CaseData("> 100", "Large"),
+                                CaseData("< 100", "Small")
+                            ),
+                            default = "Balanced"
+                        )
+                    )
+                )
+            )
+        )
+
+        render("<size>", resolver) shouldBe "Balanced"
+    }
+
+    "conditional placeholder evaluates expanded placeholder expressions" {
+        val resolver = customResolver(
+            listOf(
+                Group(
+                    placeholders = mapOf(
+                        "answer" to NumberPlaceholder(42.0),
+                        "status" to ConditionalPlaceholder(
+                            condition = "<answer> > 10",
+                            ifTrue = "Large",
+                            ifElse = "Small"
+                        )
+                    )
+                )
+            )
+        )
+
+        render("<status>", resolver) shouldBe "Large"
     }
 
     "sanitized text parses minimessage but not custom placeholder tags" {

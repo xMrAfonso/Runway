@@ -64,7 +64,7 @@ class MigrationHandler(
         val migratedFile = placeholdersPath.resolve("migrated.yml").toFile()
         val migrated = YamlConfiguration()
         oldPlaceholders.forEach { (key, value) ->
-            migrated.set("legacy-placeholders.$key", value)
+            migrated.set("text-placeholders.$key", value)
         }
         migrated.save(migratedFile)
         archiveLegacyFile("placeholders.yml", "old-placeholders.yml")

@@ -6,8 +6,8 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import org.bukkit.entity.Player
 
 class PAPITag(
-    private val placeholderParser: (Player?, String) -> String = { player, placeholder ->
-        PlaceholderAPI.setPlaceholders(player, "%$placeholder%")
+    private val placeholderParser: (Player?, String) -> String = { player, text ->
+        PlaceholderAPI.setPlaceholders(player, text)
     }
 ) : AbstractTag() {
     /**
@@ -19,7 +19,6 @@ class PAPITag(
      * Example:
      * <papi:player> will be replaced with the player's name.
      *
-     * @param player The player for whom the placeholders will be resolved.
      * @return A TagResolver that processes PlaceholderAPI tags.
      *
      * Credits to mbaxter for the original code.
@@ -29,9 +28,10 @@ class PAPITag(
             val papiPlaceholder = argumentQueue!!.popOr("papi tag requires an argument").value()
             val player = context.target() as? Player
 
-            val parsedPlaceholder = placeholderParser(player, papiPlaceholder)
+            val parsedPlaceholder = placeholderParser(player, "%$papiPlaceholder%")
+            val nestedParsedPlaceholder = placeholderParser(player, parsedPlaceholder)
 
-            Tag.preProcessParsed(parsedPlaceholder)
+            Tag.preProcessParsed(nestedParsedPlaceholder)
         }
     }
 }

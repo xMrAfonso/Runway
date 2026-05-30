@@ -45,10 +45,18 @@ data class Settings(
         val chat: Chat = Chat(),
         @SerialComment(["Whether to parse system messages, also known as plugin messages. (default: true)"])
         val systemMessages: Listener = Listener(),
+        @SerialComment(["Whether to parse actionbar messages. (default: true)"])
+        val actionbar: Listener = Listener(),
+        @SerialComment(["Whether to parse bossbar titles. (default: true)"])
+        val bossbar: Listener = Listener(),
         val tablist: Listener = Listener(),
         val titles: Listener = Listener(),
         @SerialComment(["Whether to parse dialogs and all text/items inside them. (default: true)"])
         val dialogs: Listener = Listener(),
+        @SerialComment(["Whether to parse entity metadata text, including text displays and entity nameplates. (default: true)"])
+        val entityText: Listener = Listener(),
+        @SerialComment(["Whether to parse player names from scoreboard teams and player info packets. (default: true)"])
+        val playerNames: Listener = Listener(),
         val inventory: Inventory = Inventory(),
         val items: Listener = Listener()
     )

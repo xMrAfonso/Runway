@@ -1,6 +1,5 @@
 package me.mrafonso.runway.resolver
 
-import ch.andre601.expressionparser.DefaultExpressionParserEngine
 import me.mrafonso.runway.Runway
 import me.mrafonso.runway.config.ConfigHandler
 import me.mrafonso.runway.integration.HookHandler
@@ -17,10 +16,9 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler, configHa
     private val groupManager = PlaceholderGroupManager(plugin)
     private val miniPlaceholdersResolverCache = MiniPlaceholdersResolverCache(plugin, configHandler)
     private val miniMessage = MiniMessage.miniMessage()
-    private val expressionParser = DefaultExpressionParserEngine.createDefault()
-    private val evaluator = PlaceholderEvaluator(miniMessage, expressionParser) { text, player -> processPlaceholders(text, player) }
+    private val evaluator = PlaceholderEvaluator(miniMessage) { text, player -> processPlaceholders(text, player) }
     private val builder = TagResolverBuilder(evaluator) { text, target -> deserializeWithTarget(text, target) }
-    private val sanitizedEvaluator = PlaceholderEvaluator(miniMessage, expressionParser) { text, player ->
+    private val sanitizedEvaluator = PlaceholderEvaluator(miniMessage) { text, player ->
         processSanitizedPlaceholders(text, player)
     }
     private val sanitizedBuilder = TagResolverBuilder(sanitizedEvaluator) { text, target ->

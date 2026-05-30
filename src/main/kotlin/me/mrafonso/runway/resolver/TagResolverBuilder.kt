@@ -48,6 +48,9 @@ class TagResolverBuilder(
                 builder.resolver(TagResolver.resolver(prefix.lowercase()) { _, context ->
                     val target = context.target()
                     println(" - Creating tag for placeholder with target: $target")
+                    if (!evaluator.evaluateGroupCondition(group, target)) {
+                        return@resolver Tag.selfClosingInserting(Component.empty())
+                    }
                     parseTagForPlaceholder(group, placeholder, target)
                 })
             }
