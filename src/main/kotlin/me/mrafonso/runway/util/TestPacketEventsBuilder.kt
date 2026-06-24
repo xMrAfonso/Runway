@@ -10,16 +10,13 @@ import com.github.retrooper.packetevents.netty.NettyManager
 import com.github.retrooper.packetevents.protocol.ProtocolVersion
 import com.github.retrooper.packetevents.protocol.packettype.PacketType
 import com.github.retrooper.packetevents.settings.PacketEventsSettings
-import com.github.retrooper.packetevents.util.LogManager
 import io.github.retrooper.packetevents.impl.netty.NettyManagerImpl
 import io.github.retrooper.packetevents.impl.netty.manager.protocol.ProtocolManagerAbstract
 import io.github.retrooper.packetevents.manager.server.ServerManagerImpl
-import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.plugin.Plugin
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.*
-import java.util.logging.Level
+import java.util.Locale
 
 object TestPacketEventsBuilder {
     val LOGGER: Logger = LoggerFactory.getLogger("packetevents")
@@ -57,29 +54,16 @@ object TestPacketEventsBuilder {
                 }
             }
             private val serverManager: ServerManager = ServerManagerImpl()
-
             private val nettyManager: NettyManager = NettyManagerImpl()
-            private val logManager: LogManager = object : LogManager() {
-                override fun log(level: Level, color: NamedTextColor?, message: String) {
-                    if (level === Level.SEVERE) {
-                        LOGGER.error(message)
-                    } else if (level === Level.WARNING) {
-                        LOGGER.warn(message)
-                    } else {
-                        LOGGER.info(message)
-                    }
-                }
-            }
 
             private var loaded = false
             private var initialized = false
             private var terminated = false
 
-            @Suppress("UnstableApiUsage")
             override fun load() {
                 if (!loaded) {
                     //Resolve server version and cache
-                    val id = plugin.getName().lowercase(Locale.getDefault())
+                    val id = plugin.name.lowercase(Locale.ROOT)
                     PacketEvents.IDENTIFIER = "pe-" + id
                     PacketEvents.ENCODER_NAME = "pe-encoder-" + id
                     PacketEvents.DECODER_NAME = "pe-decoder-" + id
@@ -87,9 +71,7 @@ object TestPacketEventsBuilder {
                     PacketEvents.SERVER_CHANNEL_HANDLER_NAME = "pe-connection-initializer-" + id
                     PacketEvents.TIMEOUT_HANDLER_NAME = "pe-timeout-handler-" + id
 
-                    if (!PacketType.isPrepared()) {
-                        PacketType.prepare()
-                    }
+                    PacketType.prepare()
 
                     loaded = true
                 }
@@ -148,10 +130,6 @@ object TestPacketEventsBuilder {
 
             override fun getInjector(): ChannelInjector? {
                 return null
-            }
-
-            override fun getLogManager(): LogManager {
-                return logManager
             }
         }
     }

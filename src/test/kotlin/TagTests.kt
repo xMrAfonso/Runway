@@ -119,6 +119,26 @@ class TagTests : StringSpec({
         serialize("<plain><red>Hello</red> <bold>World</bold></plain>") shouldBe "Hello World"
     }
 
+    "papi tag output preserves minimessage color gradients" {
+        val resolver = PAPITag { _, placeholder ->
+            placeholder shouldBe "server_selector"
+            "<gradient:#ffff00:#00ffff>SERVER SELECTOR</gradient>"
+        }.retrieve()
+
+        val serialized = miniMessage.serialize(miniMessage.deserialize("<papi:server_selector>", resolver))
+
+        serialized.contains("<gradient:#FFFF00:#00FFFF>SERVER SELECTOR") shouldBe true
+    }
+
+    "papi tag output preserves legacy section colors" {
+        val resolver = PAPITag { _, placeholder ->
+            placeholder shouldBe "server_name"
+            "\u00A7aRunway"
+        }.retrieve()
+
+        miniMessage.serialize(miniMessage.deserialize("<papi:server_name>", resolver)) shouldBe "<green>Runway"
+    }
+
     "custom text placeholder tag resolves from a group" {
         val resolver = customResolver(
             listOf(
