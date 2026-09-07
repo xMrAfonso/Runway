@@ -19,6 +19,7 @@ repositories {
     maven { url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/") }
     maven { url = uri("https://repo.triumphteam.dev/snapshots/") }
     maven { url = uri("https://repo.codemc.org/repository/maven-snapshots/") }
+    maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
 }
 
 dependencies {
@@ -34,13 +35,13 @@ dependencies {
 
     implementation(kotlin("stdlib"))
     fullImplementation("dev.triumphteam:triumph-cmd-bukkit:2.0.0-BETA-4")
-    fullImplementation("com.github.retrooper:packetevents-spigot:2.12.2-SNAPSHOT")
+    fullImplementation("com.github.retrooper:packetevents-spigot:2.13.0")
     fullImplementation("dev.triumphteam:polaris-yaml:1.0.0-SNAPSHOT")
     fullImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
     fullImplementation("com.ezylang:EvalEx:3.6.1")
     fullImplementation("org.bstats:bstats-bukkit:3.2.1")
 
-    fullCompileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
+    fullCompileOnly("io.papermc.paper:paper-api:26.2.build.+")
     fullCompileOnly("me.clip:placeholderapi:2.12.2")
     fullCompileOnly("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
 
@@ -52,7 +53,7 @@ dependencies {
 
     // JMH
     jmhImplementation(kotlin("stdlib"))
-    jmhImplementation("io.papermc.paper:paper-api:26.1.2.build.+")
+    jmhImplementation("io.papermc.paper:paper-api:26.2.build.+")
     jmhImplementation("me.clip:placeholderapi:2.12.2")
     jmhImplementation("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
     jmhImplementation("io.netty:netty-buffer:4.1.110.Final")

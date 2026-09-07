@@ -6,6 +6,7 @@ import me.mrafonso.runway.config.ConfigHandler
 import me.mrafonso.runway.config.Settings
 import me.mrafonso.runway.processing.ProcessHandler
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextReplacementConfig
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.event.EventHandler
@@ -69,10 +70,12 @@ class ChatListener(
                     ?: rendered
 
             // Put the already-processed message back into the final rendered chat component.
-            processed.replaceText {
-                it.matchLiteral(messageMarker)
+            processed.replaceText(
+                TextReplacementConfig.builder()
+                    .matchLiteral(messageMarker)
                     .replacement(message)
-            }
+                    .build()
+            )
         }
     }
 }

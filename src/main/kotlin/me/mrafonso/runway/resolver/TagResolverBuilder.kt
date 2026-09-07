@@ -77,7 +77,7 @@ class TagResolverBuilder(
      * @param placeholder The [Placeholder] to create a [Tag] for.
      * @return [Tag] The created [Tag], or null if the placeholder type
      */
-    private fun parseTagForPlaceholder(group: Group, placeholder: Placeholder, target: Pointered?): Tag? {
+    private fun parseTagForPlaceholder(group: Group, placeholder: Placeholder, target: Pointered?): Tag {
         println("-- Creating tag for placeholder: $placeholder")
         return when (placeholder) {
             is TextPlaceholder -> Tag.preProcessParsed(placeholder.value)
