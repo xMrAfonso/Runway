@@ -34,14 +34,38 @@ class PAPITag(
             val papiPlaceholder = argumentQueue!!.popOr("papi tag requires an argument").value()
             val player = context.target() as? Player
 
-            val parsedPlaceholder = placeholderParser(player, papiPlaceholder)
+            val parsedPlaceholder = resolvePlaceholder(player, papiPlaceholder)
 
             Tag.preProcessParsed(parsedPlaceholder.toMiniMessage())
         }
     }
 
+    /**
+     * Resolve both the original bare-name callback contract and callbacks that
+     * expect a complete PlaceholderAPI token. The latter is also needed when a
+     * placeholder expands to another PlaceholderAPI placeholder.
+     */
+    private fun resolvePlaceholder(player: Player?, placeholder: String): String {
+        val parsed = placeholderParser(player, placeholder)
+        if (parsed != placeholder) return parsed
+
+        var nested = placeholderParser(player, "%$placeholder%")
+        repeat(MAX_NESTED_PLACEHOLDER_DEPTH) {
+            if (!PAPI_PLACEHOLDER.matches(nested)) return nested
+            val next = placeholderParser(player, nested)
+            if (next == nested) return nested
+            nested = next
+        }
+        return nested
+    }
+
     private fun String.toMiniMessage(): String {
         if (!contains('\u00A7')) return this
         return miniMessage.serialize(legacySection.deserialize(this))
+    }
+
+    private companion object {
+        private const val MAX_NESTED_PLACEHOLDER_DEPTH = 16
+        private val PAPI_PLACEHOLDER = Regex("%[^%]+%")
     }
 }

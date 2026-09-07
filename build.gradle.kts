@@ -49,7 +49,7 @@ dependencies {
     testImplementation("io.netty:netty-buffer:4.1.110.Final")
     testImplementation("io.kotest:kotest-assertions-core:6.1.11")
     testImplementation("io.kotest:kotest-runner-junit5:6.1.11")
-    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v26.1.2:4.113.1")
+    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v26.2:4.116.1")
 
     // JMH
     jmhImplementation(kotlin("stdlib"))
@@ -57,7 +57,7 @@ dependencies {
     jmhImplementation("me.clip:placeholderapi:2.12.2")
     jmhImplementation("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
     jmhImplementation("io.netty:netty-buffer:4.1.110.Final")
-    jmhImplementation("org.mockbukkit.mockbukkit:mockbukkit-v26.1.2:4.113.1")
+    jmhImplementation("org.mockbukkit.mockbukkit:mockbukkit-v26.2:4.116.1")
     jmhImplementation("org.openjdk.jmh:jmh-core:1.37")
     jmhAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:1.37")
 }
