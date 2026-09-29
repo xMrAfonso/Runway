@@ -19,7 +19,6 @@ inline fun <reified T : Any> load(
     // If no default and file doesn't exist → behave like the second overload
     if (writeDefaults && default == null && !Files.exists(path)) return null
 
-    println("Loading config from $fileName")
     return loadConfig<T> {
         file = path
         this.writeDefaults = writeDefaults

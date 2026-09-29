@@ -29,6 +29,18 @@ class RunwayCommand(
         if (sender is Player) sender.playSound(sender, "block.note_block.bell", 1f, 1f)
     }
 
+    @Command("debug")
+    @Permission("runway.debug")
+    fun debugCommand(sender: CommandSender) {
+        val settings = configHandler.get<Settings>()
+        settings.debug = !settings.debug
+        configHandler.save<Settings>()
+
+        val lang = configHandler.get<Lang>()
+        sender.sendRichMessage(if (settings.debug) lang.debugEnabled else lang.debugDisabled)
+        if (sender is Player) sender.playSound(sender, "block.note_block.bell", 1f, 1f)
+    }
+
     @Command("parse")
     @Permission("runway.parse")
     fun parseCommand(sender: CommandSender, @Join(" ") text: String) {

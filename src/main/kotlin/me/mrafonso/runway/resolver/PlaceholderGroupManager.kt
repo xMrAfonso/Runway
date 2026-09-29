@@ -3,11 +3,12 @@ package me.mrafonso.runway.resolver
 import dev.triumphteam.polaris.Config
 import me.mrafonso.runway.Runway
 import me.mrafonso.runway.config.placeholder.Group
+import me.mrafonso.runway.util.DebugLogger
 import me.mrafonso.runway.util.load
 import java.nio.file.Files
 import java.nio.file.Path
 
-class PlaceholderGroupManager(private val plugin: Runway) {
+class PlaceholderGroupManager(private val plugin: Runway, private val debug: DebugLogger) {
 
     private val groups: MutableMap<String, Config<Group>> = mutableMapOf()
 
@@ -40,11 +41,11 @@ class PlaceholderGroupManager(private val plugin: Runway) {
     private fun loadConfigs() {
         val path = Path.of("${plugin.dataFolder}/placeholders")
         if (!Files.exists(path) || !Files.isDirectory(path)) {
-            println("Placeholders directory not found. Creating default configuration.")
+            debug.log { "Placeholders directory not found, creating the default configuration." }
             Files.createDirectory(path)
             groups["default.yml"] = loadGroup("placeholders/default.yml", true)
         } else {
-            println("Loading placeholder configuration files from placeholders directory.")
+            debug.log { "Loading placeholder configuration files from $path" }
             val allFiles = Files.walk(path).use { files ->
                 files
                     .filter { Files.isRegularFile(it) && it.fileName.toString().endsWith(".yml") }
@@ -55,6 +56,7 @@ class PlaceholderGroupManager(private val plugin: Runway) {
             allFiles.forEach { fileName ->
                 try {
                     groups[fileName] = loadGroup("placeholders/$fileName")
+                    debug.log { "Loaded placeholder file $fileName" }
                 } catch (e: Exception) {
                     plugin.logger.warning("Failed to load placeholders from $fileName: ${e.message}")
                 }

@@ -6,7 +6,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Settings(
-    val debug: Boolean = false,
+    @SerialComment([
+        "Logs placeholder loading and resolution details to the console. (default: false)",
+        "Can also be toggled at runtime with /runway debug."
+    ])
+    var debug: Boolean = false,
 
     val prefix: Prefix = Prefix(),
 

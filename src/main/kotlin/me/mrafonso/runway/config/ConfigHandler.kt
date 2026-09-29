@@ -1,12 +1,8 @@
 package me.mrafonso.runway.config
 
 import dev.triumphteam.polaris.Config
-import dev.triumphteam.polaris.loadConfig
-import dev.triumphteam.polaris.yaml.Yaml
 import me.mrafonso.runway.Runway
 import me.mrafonso.runway.util.load
-import java.nio.file.Files
-import java.nio.file.Path
 
 class ConfigHandler(val plugin: Runway, init: ConfigHandler.() -> Unit = {}) {
 

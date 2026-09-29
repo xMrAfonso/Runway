@@ -8,7 +8,7 @@ import me.mrafonso.runway.command.RunwayCommand
 import me.mrafonso.runway.config.ConfigHandler
 import me.mrafonso.runway.config.Lang
 import me.mrafonso.runway.config.Settings
-import me.mrafonso.runway.processing.*
+import me.mrafonso.runway.processing.ProcessHandler
 import me.mrafonso.runway.integration.HookHandler
 import me.mrafonso.runway.integration.RunwayPlaceholderExpansion
 import me.mrafonso.runway.listener.ChatListener
@@ -22,7 +22,6 @@ import me.mrafonso.runway.listener.packet.PlayerNamePacketListener
 import me.mrafonso.runway.listener.packet.SystemChatPacketListener
 import me.mrafonso.runway.listener.packet.TablistPacketListener
 import me.mrafonso.runway.listener.packet.TitlePacketListener
-import me.mrafonso.runway.listener.packet.TestPacketListener
 import me.mrafonso.runway.migration.MigrationHandler
 import me.mrafonso.runway.resolver.ResolverHandler
 import me.mrafonso.runway.util.registerEvents
@@ -127,8 +126,7 @@ open class Runway : JavaPlugin() {
             DialogPacketListener(handlers.second, configHandler),
             EntityTextPacketListener(handlers.second, configHandler),
             PlayerNamePacketListener(handlers.second, configHandler),
-            TitlePacketListener(handlers.second, configHandler),
-            TestPacketListener(handlers.second, configHandler)
+            TitlePacketListener(handlers.second, configHandler)
         )
     }
 
@@ -136,7 +134,7 @@ open class Runway : JavaPlugin() {
      * Initializes bStats metrics for the plugin.
      */
     private fun initMetrics() {
-        val metrics = Metrics(this, METRICS_ID)
+        Metrics(this, METRICS_ID)
     }
 
     /**
