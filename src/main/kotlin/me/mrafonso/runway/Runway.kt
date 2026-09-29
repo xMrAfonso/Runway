@@ -12,6 +12,8 @@ import me.mrafonso.runway.processing.ProcessHandler
 import me.mrafonso.runway.integration.HookHandler
 import me.mrafonso.runway.integration.RunwayPlaceholderExpansion
 import me.mrafonso.runway.listener.ChatListener
+import me.mrafonso.runway.listener.console.ConsoleFormatter
+import me.mrafonso.runway.listener.console.ConsoleRewriter
 import me.mrafonso.runway.listener.packet.ActionbarPacketListener
 import me.mrafonso.runway.listener.packet.BossbarPacketListener
 import me.mrafonso.runway.listener.packet.DialogPacketListener
@@ -33,6 +35,7 @@ open class Runway : JavaPlugin() {
     lateinit var configHandler: ConfigHandler
     private var resolverHandler: ResolverHandler? = null
     private var unregisterPlaceholderExpansion: (() -> Unit)? = null
+    private var consoleRewriter: ConsoleRewriter? = null
 
     /**
      * Called when the plugin is first loaded by the server.
@@ -66,12 +69,14 @@ open class Runway : JavaPlugin() {
         initPacketEvents()
         initCommandManager(configHandler, handlers)
         initPlaceholderExpansion(hookHandler, handlers.first)
+        initConsoleRewriter(handlers.second)
         initMetrics()
 
         logger.info("Runway enabled!")
     }
 
     override fun onDisable() {
+        consoleRewriter?.uninstall()
         unregisterPlaceholderExpansion?.invoke()
         resolverHandler?.stop()
         PacketEvents.getAPI().terminate()
@@ -204,6 +209,22 @@ open class Runway : JavaPlugin() {
             unregisterPlaceholderExpansion = { expansion.unregister() }
         }
         logger.info("Registered PlaceholderAPI expansion: %runway_<placeholder>%")
+    }
+
+    /**
+     * Routes console output through Runway. Always installed; `listeners.console.enable` is checked per line
+     * so it can be toggled with a reload.
+     */
+    private fun initConsoleRewriter(processHandler: ProcessHandler) {
+        if (isTestingMode()) return
+        try {
+            consoleRewriter = ConsoleRewriter(ConsoleFormatter(processHandler, configHandler)).also { it.install() }
+        } catch (e: LinkageError) {
+            // Log4j core isn't exposed on every server implementation; everything else keeps working.
+            logger.warning("Console parsing is unavailable on this server: ${e.message}")
+        } catch (e: ClassCastException) {
+            logger.warning("Console parsing is unavailable on this server: ${e.message}")
+        }
     }
 
     /**

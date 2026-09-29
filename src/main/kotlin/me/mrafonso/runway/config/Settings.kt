@@ -77,7 +77,18 @@ data class Settings(
         @SerialComment(["Whether to parse player names from scoreboard teams and player info packets. (default: true)"])
         val playerNames: Listener = Listener(),
         val inventory: Inventory = Inventory(),
-        val items: Listener = Listener()
+        val items: Listener = Listener(),
+        val console: Console = Console()
+    )
+
+    @Serializable
+    data class Console(
+        @SerialComment([
+            "Whether to parse console output. (default: true)",
+            "The prefix is always required here: only text starting at a prefix, at the start",
+            "of a line or after a space, and containing a tag is parsed, e.g. '[Plugin] $<red>Hello'."
+        ])
+        var enable: Boolean = true
     )
 
     @Serializable

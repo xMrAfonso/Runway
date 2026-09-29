@@ -11,12 +11,14 @@ import me.mrafonso.runway.config.Settings
 import me.mrafonso.runway.integration.HookHandler
 import me.mrafonso.runway.integration.RunwayPlaceholderExpansion
 import me.mrafonso.runway.listener.ChatListener
+import me.mrafonso.runway.listener.console.ConsoleFormatter
 import me.mrafonso.runway.processing.ProcessHandler
 import me.mrafonso.runway.resolver.ResolverHandler
 import me.mrafonso.runway.util.DebugLogger
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.serializer.ansi.ANSIComponentSerializer
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.entity.Player
 import org.mockbukkit.mockbukkit.MockBukkit
@@ -177,6 +179,37 @@ class ProcessingTests : StringSpec({
 
     "papi returns null for unknown placeholders" {
         resolverHandler.resolveCustomPlaceholder("missing", player) shouldBe null
+    }
+
+    // Console
+
+    "console lines with a prefixed tag are parsed" {
+        val formatter = ConsoleFormatter(processHandler, plugin.configHandler)
+        val ansi = ANSIComponentSerializer.ansi()
+
+        formatter.format("[Plugin] $<rank> started") shouldBe
+            "[Plugin] " + ansi.serialize(miniMessage.deserialize("<gradient:red:blue>[Admin] started"))
+        formatter.format("\u001B[31m$<red>Hi") shouldBe "\u001B[31m" + ansi.serialize(miniMessage.deserialize("<red>Hi"))
+    }
+
+    "console lines without a prefixed tag are left alone" {
+        val formatter = ConsoleFormatter(processHandler, plugin.configHandler)
+
+        formatter.format("Steve paid $5 to Alex") shouldBe null
+        formatter.format("Price US$<5") shouldBe null
+        formatter.format("Plain log line <with brackets>") shouldBe null
+        formatter.format("Escaped !$<red>Hi") shouldBe null
+    }
+
+    "console parsing can be disabled" {
+        settings().listeners.console.enable = false
+
+        ConsoleFormatter(processHandler, plugin.configHandler).format("$<red>Hi") shouldBe null
+    }
+
+    "only matching lines of a multi-line message are rewritten" {
+        ConsoleFormatter(processHandler, plugin.configHandler).format("first\n$<red>second") shouldBe
+            "first\n" + ANSIComponentSerializer.ansi().serialize(miniMessage.deserialize("<red>second"))
     }
 
     // Debug logging
