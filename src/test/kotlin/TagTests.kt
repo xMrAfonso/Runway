@@ -139,6 +139,13 @@ class TagTests : StringSpec({
         miniMessage.serialize(miniMessage.deserialize("<papi:server_name>", resolver)) shouldBe "<green>Runway"
     }
 
+    "papi tag output preserves legacy hex colors" {
+        val resolver = PAPITag { _, _ -> "\u00A7x\u00A7f\u00A7f\u00A70\u00A70\u00A70\u00A70R\u00A7x\u00A70\u00A70\u00A70\u00A70\u00A7f\u00A7fB" }
+            .retrieve()
+
+        miniMessage.serialize(miniMessage.deserialize("<papi:gradient>", resolver)) shouldBe "<#FF0000>R</#FF0000><#0000FF>B"
+    }
+
     "custom text placeholder tag resolves from a group" {
         val resolver = customResolver(
             listOf(

@@ -14,10 +14,13 @@ data class Settings(
 
     val prefix: Prefix = Prefix(),
 
-    @SerialComment(["Whether to disable italics in names and lores of items. (default: true)"])
+    @SerialComment(["Whether to disable the default italics in custom item names and lores. (default: true)"])
     var disableItalics: Boolean = true,
 
     val miniPlaceholders: MiniPlaceholders = MiniPlaceholders(),
+
+    @SerialName("placeholder-api")
+    val placeholderApi: PlaceholderApi = PlaceholderApi(),
 
     @SerialComment(["Listeners that Runway will listen to and intercept their packets."])
     val listeners: Listeners = Listeners()
@@ -43,6 +46,18 @@ data class Settings(
         @SerialName("refresh-rate")
         var refreshRate: Long = 30
     )
+
+    @Serializable
+    data class PlaceholderApi(
+        @SerialComment([
+            "Format returned by %runway_<placeholder>% to other plugins. (default: MINIMESSAGE)",
+            "MINIMESSAGE: MiniMessage with every tag closed, so gradients don't leak into surrounding text.",
+            "LEGACY: Section-sign colour codes (hex included), for plugins that don't understand MiniMessage."
+        ])
+        var output: PlaceholderOutput = PlaceholderOutput.MINIMESSAGE
+    )
+
+    enum class PlaceholderOutput { MINIMESSAGE, LEGACY }
 
     @Serializable
     data class Listeners(

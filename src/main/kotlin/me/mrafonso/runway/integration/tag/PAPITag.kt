@@ -13,7 +13,12 @@ class PAPITag(
     }
 ) : AbstractTag() {
     private val miniMessage = MiniMessage.miniMessage()
-    private val legacySection = LegacyComponentSerializer.legacySection()
+    // Hex support matters: PlaceholderAPI results carry gradients as "§x§r§r§g§g§b§b" per character.
+    private val legacySection = LegacyComponentSerializer.builder()
+        .character(LegacyComponentSerializer.SECTION_CHAR)
+        .hexColors()
+        .useUnusualXRepeatedCharacterHexFormat()
+        .build()
 
     /**
      * A TagResolver that integrates with PlaceholderAPI to replace placeholders in MiniMessage format.
@@ -31,7 +36,7 @@ class PAPITag(
      */
     override fun retrieve(): TagResolver {
         return TagResolver.resolver(setOf("papi", "placeholderapi")) { argumentQueue, context ->
-            val papiPlaceholder = argumentQueue!!.popOr("papi tag requires an argument").value()
+            val papiPlaceholder = argumentQueue.popOr("papi tag requires an argument").value()
             val player = context.target() as? Player
 
             val parsedPlaceholder = resolvePlaceholder(player, papiPlaceholder)

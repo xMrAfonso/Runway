@@ -199,7 +199,7 @@ open class Runway : JavaPlugin() {
     private fun initPlaceholderExpansion(hookHandler: HookHandler, resolverHandler: ResolverHandler) {
         if (!hookHandler.placeholderAPI) return
 
-        RunwayPlaceholderExpansion(this, resolverHandler).also { expansion ->
+        RunwayPlaceholderExpansion(this, resolverHandler, configHandler).also { expansion ->
             expansion.register()
             unregisterPlaceholderExpansion = { expansion.unregister() }
         }

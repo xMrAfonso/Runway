@@ -54,12 +54,16 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler, configHa
         debug.log { "Loaded ${customPlaceholderNames.size} custom placeholders from ${groups.size} groups" }
     }
 
-    fun processCustomPlaceholder(name: String, player: Pointered?): String? {
+    /**
+     * Resolves a single custom placeholder by name, e.g. for `%runway_<name>%`.
+     *
+     * @return The resolved [Component], or null if no custom placeholder has that name.
+     */
+    fun resolveCustomPlaceholder(name: String, player: Pointered?): Component? {
         val normalizedName = name.lowercase()
         if (normalizedName !in customPlaceholderNames) return null
 
-        val component = processPlaceholders("<$normalizedName>", player) ?: return null
-        return miniMessage.serialize(component)
+        return processPlaceholders("<$normalizedName>", player)
     }
 
     fun processSanitizedPlaceholders(text: String, player: Pointered?): Component? {
