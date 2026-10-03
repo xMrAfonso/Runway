@@ -16,6 +16,10 @@ import me.mrafonso.runway.processing.ProcessHandler
 import me.mrafonso.runway.resolver.ResolverHandler
 import me.mrafonso.runway.util.DebugLogger
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.format.Style
+import net.kyori.adventure.text.format.TextColor
+import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.serializer.ansi.ANSIComponentSerializer
@@ -39,6 +43,15 @@ class ProcessingTests : StringSpec({
 
     fun settings(): Settings = plugin.configHandler.get<Settings>()
 
+    /** The effective style of the leaf component whose content is exactly [text]. */
+    fun styleOf(component: Component, text: String, inherited: Style = Style.empty()): Style {
+        val style = component.style().merge(inherited, Style.Merge.Strategy.IF_ABSENT_ON_TARGET)
+        if (component is TextComponent && component.content() == text) return style
+        return component.children().firstNotNullOfOrNull {
+            runCatching { styleOf(it, text, style) }.getOrNull()
+        } ?: throw NoSuchElementException("No component with text '$text' in $component")
+    }
+
     beforeEach {
         server = MockBukkit.mock()
         System.setProperty("bstats.relocatecheck", "false")
@@ -51,6 +64,9 @@ class ProcessingTests : StringSpec({
             text-placeholders:
               rank: "<gradient:red:blue>[Admin]"
               selector: "<gradient:#ffff00:#00ffff>SERVER SELECTOR</gradient>"
+              primary_color: "<#5865f2>"
+              accent_color: "<white><bold>"
+              heading_style: "<primary_color><underlined>"
             """.trimIndent()
         )
 
@@ -175,6 +191,29 @@ class ProcessingTests : StringSpec({
 
         output.startsWith("§x§f§f§f§f§0§0S") shouldBe true
         output shouldNotContain "<"
+    }
+
+    "papi minimessage output of a colour-only placeholder colours the text after it" {
+        fun papi(name: String) = RunwayPlaceholderExpansion.format(
+            resolverHandler.resolveCustomPlaceholder(name, player)!!, Settings.PlaceholderOutput.MINIMESSAGE
+        )
+
+        val line = miniMessage.deserialize("<dark_gray>| ${papi("primary_color")}Rank: ${papi("accent_color")}Default")
+
+        styleOf(line, "| ").color() shouldBe NamedTextColor.DARK_GRAY
+        styleOf(line, "Rank: ").color() shouldBe TextColor.color(0x5865f2)
+        styleOf(line, "Default").color() shouldBe NamedTextColor.WHITE
+        styleOf(line, "Default").hasDecoration(TextDecoration.BOLD) shouldBe true
+    }
+
+    "papi legacy output of a colour-only placeholder colours the text after it" {
+        fun papi(name: String) = RunwayPlaceholderExpansion.format(
+            resolverHandler.resolveCustomPlaceholder(name, player)!!, Settings.PlaceholderOutput.LEGACY
+        )
+
+        papi("primary_color") shouldBe "§x§5§8§6§5§f§2"
+        papi("accent_color") shouldBe "§f§l"
+        papi("heading_style") shouldBe "§x§5§8§6§5§f§2§n"
     }
 
     "papi returns null for unknown placeholders" {
