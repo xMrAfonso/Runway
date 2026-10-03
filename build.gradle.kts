@@ -35,7 +35,7 @@ dependencies {
 
     implementation(kotlin("stdlib"))
     fullImplementation("dev.triumphteam:triumph-cmd-bukkit:2.0.0-BETA-4")
-    fullImplementation("com.github.retrooper:packetevents-spigot:2.13.0")
+    fullImplementation("com.github.retrooper:packetevents-spigot:2.14.0")
     fullImplementation("dev.triumphteam:polaris-yaml:1.0.0-SNAPSHOT")
     fullImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
     fullImplementation("com.ezylang:EvalEx:3.6.1")
