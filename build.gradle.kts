@@ -35,7 +35,7 @@ dependencies {
 
     implementation(kotlin("stdlib"))
     fullImplementation("dev.triumphteam:triumph-cmd-bukkit:2.0.0-BETA-4")
-    fullImplementation("com.github.retrooper:packetevents-spigot:2.13.0")
+    fullImplementation("com.github.retrooper:packetevents-spigot:2.14.0")
     fullImplementation("dev.triumphteam:polaris-yaml:1.0.0-SNAPSHOT")
     fullImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
     fullImplementation("com.ezylang:EvalEx:3.6.1")
@@ -44,6 +44,9 @@ dependencies {
     fullCompileOnly("io.papermc.paper:paper-api:26.2.build.+")
     fullCompileOnly("me.clip:placeholderapi:2.12.2")
     fullCompileOnly("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
+    // Provided by the server; used to rewrite console output.
+    fullCompileOnly("org.apache.logging.log4j:log4j-core:2.25.3")
+    fullCompileOnly("net.kyori:adventure-text-serializer-ansi:5.2.0")
 
     // Testing specific
     testImplementation("io.netty:netty-buffer:4.1.110.Final")

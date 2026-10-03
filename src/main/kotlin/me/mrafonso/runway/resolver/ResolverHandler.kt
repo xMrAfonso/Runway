@@ -2,8 +2,10 @@ package me.mrafonso.runway.resolver
 
 import me.mrafonso.runway.Runway
 import me.mrafonso.runway.config.ConfigHandler
+import me.mrafonso.runway.config.Settings
 import me.mrafonso.runway.integration.HookHandler
 import me.mrafonso.runway.integration.TagManager
+import me.mrafonso.runway.util.DebugLogger
 import net.kyori.adventure.pointer.Pointered
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
@@ -12,16 +14,17 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 
 class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler, configHandler: ConfigHandler) {
 
+    val debug = DebugLogger(plugin.logger) { configHandler.get<Settings>().debug }
     private val tagManager = TagManager(hookHandler.placeholderAPI)
-    private val groupManager = PlaceholderGroupManager(plugin)
+    private val groupManager = PlaceholderGroupManager(plugin, debug)
     private val miniPlaceholdersResolverCache = MiniPlaceholdersResolverCache(plugin, configHandler)
     private val miniMessage = MiniMessage.miniMessage()
-    private val evaluator = PlaceholderEvaluator(miniMessage) { text, player -> processPlaceholders(text, player) }
-    private val builder = TagResolverBuilder(evaluator) { text, target -> deserializeWithTarget(text, target) }
-    private val sanitizedEvaluator = PlaceholderEvaluator(miniMessage) { text, player ->
+    private val evaluator = PlaceholderEvaluator(miniMessage, debug) { text, player -> processPlaceholders(text, player) }
+    private val builder = TagResolverBuilder(evaluator, debug) { text, target -> deserializeWithTarget(text, target) }
+    private val sanitizedEvaluator = PlaceholderEvaluator(miniMessage, debug) { text, player ->
         processSanitizedPlaceholders(text, player)
     }
-    private val sanitizedBuilder = TagResolverBuilder(sanitizedEvaluator) { text, target ->
+    private val sanitizedBuilder = TagResolverBuilder(sanitizedEvaluator, debug) { text, target ->
         deserializeSanitizedWithTarget(text, target)
     }
 
@@ -48,14 +51,19 @@ class ResolverHandler(val plugin: Runway, val hookHandler: HookHandler, configHa
         }.map { it.lowercase() }.toSet()
         sanitizedResolver = sanitizedBuilder.buildSanitized(groups)
         resolver = TagResolver.resolver(builder.build(groups), tagManager.resolver())
+        debug.log { "Loaded ${customPlaceholderNames.size} custom placeholders from ${groups.size} groups" }
     }
 
-    fun processCustomPlaceholder(name: String, player: Pointered?): String? {
+    /**
+     * Resolves a single custom placeholder by name, e.g. for `%runway_<name>%`.
+     *
+     * @return The resolved [Component], or null if no custom placeholder has that name.
+     */
+    fun resolveCustomPlaceholder(name: String, player: Pointered?): Component? {
         val normalizedName = name.lowercase()
         if (normalizedName !in customPlaceholderNames) return null
 
-        val component = processPlaceholders("<$normalizedName>", player) ?: return null
-        return miniMessage.serialize(component)
+        return processPlaceholders("<$normalizedName>", player)
     }
 
     fun processSanitizedPlaceholders(text: String, player: Pointered?): Component? {

@@ -6,14 +6,21 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Settings(
-    val debug: Boolean = false,
+    @SerialComment([
+        "Logs placeholder loading and resolution details to the console. (default: false)",
+        "Can also be toggled at runtime with /runway debug."
+    ])
+    var debug: Boolean = false,
 
     val prefix: Prefix = Prefix(),
 
-    @SerialComment(["Whether to disable italics in names and lores of items. (default: true)"])
+    @SerialComment(["Whether to disable the default italics in custom item names and lores. (default: true)"])
     var disableItalics: Boolean = true,
 
     val miniPlaceholders: MiniPlaceholders = MiniPlaceholders(),
+
+    @SerialName("placeholder-api")
+    val placeholderApi: PlaceholderApi = PlaceholderApi(),
 
     @SerialComment(["Listeners that Runway will listen to and intercept their packets."])
     val listeners: Listeners = Listeners()
@@ -41,6 +48,18 @@ data class Settings(
     )
 
     @Serializable
+    data class PlaceholderApi(
+        @SerialComment([
+            "Format returned by %runway_<placeholder>% to other plugins. (default: MINIMESSAGE)",
+            "MINIMESSAGE: MiniMessage with every tag closed, so gradients don't leak into surrounding text.",
+            "LEGACY: Section-sign colour codes (hex included), for plugins that don't understand MiniMessage."
+        ])
+        var output: PlaceholderOutput = PlaceholderOutput.MINIMESSAGE
+    )
+
+    enum class PlaceholderOutput { MINIMESSAGE, LEGACY }
+
+    @Serializable
     data class Listeners(
         val chat: Chat = Chat(),
         @SerialComment(["Whether to parse system messages, also known as plugin messages. (default: true)"])
@@ -58,7 +77,18 @@ data class Settings(
         @SerialComment(["Whether to parse player names from scoreboard teams and player info packets. (default: true)"])
         val playerNames: Listener = Listener(),
         val inventory: Inventory = Inventory(),
-        val items: Listener = Listener()
+        val items: Listener = Listener(),
+        val console: Console = Console()
+    )
+
+    @Serializable
+    data class Console(
+        @SerialComment([
+            "Whether to parse console output. (default: true)",
+            "The prefix is always required here: only text starting at a prefix, at the start",
+            "of a line or after a space, and containing a tag is parsed, e.g. '[Plugin] $<red>Hello'."
+        ])
+        var enable: Boolean = true
     )
 
     @Serializable

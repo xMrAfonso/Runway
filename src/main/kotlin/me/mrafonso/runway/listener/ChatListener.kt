@@ -8,11 +8,12 @@ import me.mrafonso.runway.processing.ProcessHandler
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextReplacementConfig
 import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
-import java.util.concurrent.atomic.AtomicLong
+import java.util.UUID
 
 class ChatListener(
     private val processHandler: ProcessHandler,
@@ -20,59 +21,57 @@ class ChatListener(
 ) : Listener {
     private val plainText = PlainTextComponentSerializer.plainText()
     private val miniMessage = MiniMessage.miniMessage()
-    private val markerId = AtomicLong()
 
     @EventHandler(priority = EventPriority.HIGHEST)
     fun onChatMessage(e: AsyncChatEvent) {
         val settings = configHandler.get<Settings>()
         if (!settings.listeners.chat.enable) return
 
+        // The chat format comes from the server, so it's parsed whether or not the player's message is.
+        e.renderer(processRenderer(e.renderer(), settings))
+
         val text = plainText.serialize(e.message())
-        val requirePrefix = settings.requiresPrefix(settings.listeners.chat)
-        if (!requirePrefix && text.startsWith("!${settings.prefix.value}")) return
+        val prefix = settings.prefix.value
+        if (text.startsWith("!$prefix")) return
 
         val marker = if (settings.listeners.chat.sanitize) "<sanitized>" else ""
-        val input = if (text.startsWith(settings.prefix.value)) {
-            "${settings.prefix.value}$marker${text.drop(settings.prefix.value.length)}"
-        } else {
-            "$marker$text"
-        }
+        val input = if (text.startsWith(prefix)) "$prefix$marker${text.drop(prefix.length)}" else "$marker$text"
 
-        val processedMessage = processHandler.processComponent(
-            input,
-            e.player,
-            requirePrefix,
-        ) ?: return
-
-        e.message(processedMessage)
-        e.renderer(processRenderer(e.renderer(), settings))
+        processHandler.processComponent(input, e.player, settings.requiresPrefix(settings.listeners.chat))
+            ?.let { e.message(it) }
     }
 
     /**
-     * This is needed to allow processing of the entire message with the renderer's formatting rules applied,
-     * without having to re-parse the message content for MiniMessage tags, which would cause issues with unsanitized renderers.
+     * Wraps the renderer so its output (the chat format) is parsed by Runway, while the player's message,
+     * already processed above, is never parsed again under the format's unsanitized rules.
+     *
+     * The renderer is given a unique tag in place of the message. Parsing the rendered output then turns
+     * that tag back into the message component. This has to be a real tag rather than text to find and
+     * replace afterwards: formatting that spans the message (e.g. an unclosed gradient from a rank
+     * placeholder) splits text into one component per character, so a text marker could no longer be found.
      *
      * @param renderer The original [ChatRenderer] to wrap.
-     * @param settings The current [Settings] to check for prefix and sanitization.
-     * @return A new [ChatRenderer] that processes the rendered message with a marker, then replaces the marker with the original message after processing.
+     * @param settings The current [Settings] to read the prefix from.
      */
-    private fun processRenderer(renderer: ChatRenderer, settings: Settings): ChatRenderer {
+    internal fun processRenderer(renderer: ChatRenderer, settings: Settings): ChatRenderer {
         return ChatRenderer { source, sourceDisplayName, message, viewer ->
-            // Render with a marker instead of the real message so renderer formatting can be parsed
-            // without parsing player content again under the unsanitized renderer rules.
-            val messageMarker = "<runway:marker:${markerId.incrementAndGet()}:${source.uniqueId}>"
+            // Random per render, so players can't type the tag or guess another message's tag.
+            val tagName = "runway_message_${UUID.randomUUID().toString().replace("-", "")}"
+            val marker = "<$tagName>"
 
-            val rendered =
-                renderer.render(source, sourceDisplayName, Component.text(messageMarker), viewer)
+            val rendered = renderer.render(source, sourceDisplayName, Component.text(marker), viewer)
 
-            val processed =
-                processHandler.processComponent("${settings.prefix.value}${miniMessage.serialize(rendered)}", source, false)
-                    ?: rendered
+            val processed = processHandler.processComponent(
+                "${settings.prefix.value}${miniMessage.serialize(rendered)}",
+                source,
+                false,
+                Placeholder.component(tagName, message)
+            ) ?: rendered
 
-            // Put the already-processed message back into the final rendered chat component.
+            // Safety net for anywhere the tag wasn't parsed; the marker is still intact text there.
             processed.replaceText(
                 TextReplacementConfig.builder()
-                    .matchLiteral(messageMarker)
+                    .matchLiteral(marker)
                     .replacement(message)
                     .build()
             )

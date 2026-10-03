@@ -27,14 +27,6 @@ class SmallCapsTag : AbstractTag() {
         }
     }
 
-    private fun transformComponent(component: Component): Component {
-        if (component is TextComponent) {
-            val transformed = component.content(convertToSmallCaps(component.content()))
-            return transformed.children(component.children().map { transformComponent(it) })
-        }
-        return component.children(component.children().map { transformComponent(it) })
-    }
-
     private fun convertToSmallCaps(text: String): String {
         return text.map { char ->
             smallCapsMap[char.lowercaseChar()] ?: char

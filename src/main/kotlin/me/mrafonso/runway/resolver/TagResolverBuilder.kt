@@ -10,11 +10,13 @@ import me.mrafonso.runway.config.placeholder.Placeholder
 import me.mrafonso.runway.config.placeholder.RandomPlaceholder
 import me.mrafonso.runway.config.placeholder.SwitchPlaceholder
 import me.mrafonso.runway.config.placeholder.TextPlaceholder
+import me.mrafonso.runway.util.DebugLogger
 import net.kyori.adventure.text.minimessage.tag.Tag
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 
 class TagResolverBuilder(
     private val evaluator: PlaceholderEvaluator,
+    private val debug: DebugLogger = DebugLogger.NONE,
     private val deserialize: (String, Pointered?) -> Component
 ) {
 
@@ -38,16 +40,13 @@ class TagResolverBuilder(
         val builder = TagResolver.builder()
 
         groups.forEach { group ->
-            println("Loading placeholder group: ${group.prefix}")
             placeholdersForGroup(group).forEach { (key, placeholder) ->
-                println(" - Loading placeholder: $key")
-                val prefix = resolvePrefix(key, group)
-                println(" - Loading placeholder prefix: $prefix")
+                val name = resolvePrefix(key, group).lowercase()
+                debug.log { "Registered placeholder <$name> (${placeholder::class.simpleName})" }
 
-                println("-- Creating resolver for placeholder with key: $prefix")
-                builder.resolver(TagResolver.resolver(prefix.lowercase()) { _, context ->
+                builder.resolver(TagResolver.resolver(name) { _, context ->
                     val target = context.target()
-                    println(" - Creating tag for placeholder with target: $target")
+                    debug.log { "Resolving <$name> for target $target" }
                     if (!evaluator.evaluateGroupCondition(group, target)) {
                         return@resolver Tag.selfClosingInserting(Component.empty())
                     }
@@ -78,7 +77,6 @@ class TagResolverBuilder(
      * @return [Tag] The created [Tag], or null if the placeholder type
      */
     private fun parseTagForPlaceholder(group: Group, placeholder: Placeholder, target: Pointered?): Tag {
-        println("-- Creating tag for placeholder: $placeholder")
         return when (placeholder) {
             is TextPlaceholder -> Tag.preProcessParsed(placeholder.value)
             is NumberPlaceholder -> Tag.selfClosingInserting(deserialize(placeholder.value.toString(), target))

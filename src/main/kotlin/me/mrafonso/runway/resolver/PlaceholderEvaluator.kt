@@ -5,6 +5,7 @@ import me.mrafonso.runway.config.placeholder.ConditionalPlaceholder
 import me.mrafonso.runway.config.placeholder.Group
 import me.mrafonso.runway.config.placeholder.MatchPlaceholder
 import me.mrafonso.runway.config.placeholder.SwitchPlaceholder
+import me.mrafonso.runway.util.DebugLogger
 import net.kyori.adventure.pointer.Pointered
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
@@ -12,6 +13,7 @@ import net.kyori.adventure.text.minimessage.tag.Tag
 
 class PlaceholderEvaluator(
     private val miniMessage: MiniMessage,
+    private val debug: DebugLogger = DebugLogger.NONE,
     private val placeholderProcessor: (String, Pointered?) -> Component?
 ) {
 
@@ -23,8 +25,6 @@ class PlaceholderEvaluator(
      * @return [Tag] The resulting [Tag] after evaluating the condition.
      */
     fun evaluateConditional(group: Group, placeholder: ConditionalPlaceholder, target: Pointered?, deserialize: (String, Pointered?) -> Component): Tag {
-        println("- ${placeholder.condition}")
-        println("+ ${group.condition}")
         val conditionResult = evaluateExpression(placeholder.condition, target)
         val groupResult = evaluateGroupCondition(group, target)
 
@@ -80,7 +80,9 @@ class PlaceholderEvaluator(
         placeholderProcessor(expression, target)?.let {
             val condition = miniMessage.serialize(it)
                 .replace("\\<", "<").replace("\\>", ">")
-            return Expression(condition).evaluate().booleanValue
+            val result = Expression(condition).evaluate().booleanValue
+            debug.log { "Evaluated '$expression' as '$condition' -> $result" }
+            return result
         }
         return true
     }

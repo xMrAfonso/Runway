@@ -10,5 +10,7 @@ data class Lang(
     val invalidArgument: String = "<gradient:#0050ff:#0099ff>Runway</gradient><gray> | <white>Invalid argument. Please use a valid argument!",
     val unknownCommand: String = "<gradient:#0050ff:#0099ff>Runway</gradient><gray> | <white>Sorry but that command is unknown. Please try again!",
     val noPermission: String = "<gradient:#0050ff:#0099ff>Runway</gradient><gray> | <white>You do not have permission to use this command!",
-    val notEnoughArguments: String = "<gradient:#0050ff:#0099ff>Runway</gradient><gray> | <white>Not enough arguments. Please use a valid argument!"
+    val notEnoughArguments: String = "<gradient:#0050ff:#0099ff>Runway</gradient><gray> | <white>Not enough arguments. Please use a valid argument!",
+    val debugEnabled: String = "<gradient:#0050ff:#0099ff>Runway</gradient><gray> | <white>Debug mode <green>enabled</green>. Details are logged to the console.",
+    val debugDisabled: String = "<gradient:#0050ff:#0099ff>Runway</gradient><gray> | <white>Debug mode <red>disabled</red>."
 )

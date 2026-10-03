@@ -8,10 +8,12 @@ import me.mrafonso.runway.command.RunwayCommand
 import me.mrafonso.runway.config.ConfigHandler
 import me.mrafonso.runway.config.Lang
 import me.mrafonso.runway.config.Settings
-import me.mrafonso.runway.processing.*
+import me.mrafonso.runway.processing.ProcessHandler
 import me.mrafonso.runway.integration.HookHandler
 import me.mrafonso.runway.integration.RunwayPlaceholderExpansion
 import me.mrafonso.runway.listener.ChatListener
+import me.mrafonso.runway.listener.console.ConsoleFormatter
+import me.mrafonso.runway.listener.console.ConsoleRewriter
 import me.mrafonso.runway.listener.packet.ActionbarPacketListener
 import me.mrafonso.runway.listener.packet.BossbarPacketListener
 import me.mrafonso.runway.listener.packet.DialogPacketListener
@@ -22,7 +24,6 @@ import me.mrafonso.runway.listener.packet.PlayerNamePacketListener
 import me.mrafonso.runway.listener.packet.SystemChatPacketListener
 import me.mrafonso.runway.listener.packet.TablistPacketListener
 import me.mrafonso.runway.listener.packet.TitlePacketListener
-import me.mrafonso.runway.listener.packet.TestPacketListener
 import me.mrafonso.runway.migration.MigrationHandler
 import me.mrafonso.runway.resolver.ResolverHandler
 import me.mrafonso.runway.util.registerEvents
@@ -34,6 +35,7 @@ open class Runway : JavaPlugin() {
     lateinit var configHandler: ConfigHandler
     private var resolverHandler: ResolverHandler? = null
     private var unregisterPlaceholderExpansion: (() -> Unit)? = null
+    private var consoleRewriter: ConsoleRewriter? = null
 
     /**
      * Called when the plugin is first loaded by the server.
@@ -67,12 +69,14 @@ open class Runway : JavaPlugin() {
         initPacketEvents()
         initCommandManager(configHandler, handlers)
         initPlaceholderExpansion(hookHandler, handlers.first)
+        initConsoleRewriter(handlers.second)
         initMetrics()
 
         logger.info("Runway enabled!")
     }
 
     override fun onDisable() {
+        consoleRewriter?.uninstall()
         unregisterPlaceholderExpansion?.invoke()
         resolverHandler?.stop()
         PacketEvents.getAPI().terminate()
@@ -127,8 +131,7 @@ open class Runway : JavaPlugin() {
             DialogPacketListener(handlers.second, configHandler),
             EntityTextPacketListener(handlers.second, configHandler),
             PlayerNamePacketListener(handlers.second, configHandler),
-            TitlePacketListener(handlers.second, configHandler),
-            TestPacketListener(handlers.second, configHandler)
+            TitlePacketListener(handlers.second, configHandler)
         )
     }
 
@@ -136,7 +139,7 @@ open class Runway : JavaPlugin() {
      * Initializes bStats metrics for the plugin.
      */
     private fun initMetrics() {
-        val metrics = Metrics(this, METRICS_ID)
+        Metrics(this, METRICS_ID)
     }
 
     /**
@@ -201,11 +204,27 @@ open class Runway : JavaPlugin() {
     private fun initPlaceholderExpansion(hookHandler: HookHandler, resolverHandler: ResolverHandler) {
         if (!hookHandler.placeholderAPI) return
 
-        RunwayPlaceholderExpansion(this, resolverHandler).also { expansion ->
+        RunwayPlaceholderExpansion(this, resolverHandler, configHandler).also { expansion ->
             expansion.register()
             unregisterPlaceholderExpansion = { expansion.unregister() }
         }
         logger.info("Registered PlaceholderAPI expansion: %runway_<placeholder>%")
+    }
+
+    /**
+     * Routes console output through Runway. Always installed; `listeners.console.enable` is checked per line
+     * so it can be toggled with a reload.
+     */
+    private fun initConsoleRewriter(processHandler: ProcessHandler) {
+        if (isTestingMode()) return
+        try {
+            consoleRewriter = ConsoleRewriter(ConsoleFormatter(processHandler, configHandler)).also { it.install() }
+        } catch (e: LinkageError) {
+            // Log4j core isn't exposed on every server implementation; everything else keeps working.
+            logger.warning("Console parsing is unavailable on this server: ${e.message}")
+        } catch (e: ClassCastException) {
+            logger.warning("Console parsing is unavailable on this server: ${e.message}")
+        }
     }
 
     /**
